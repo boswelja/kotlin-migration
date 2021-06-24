@@ -24,7 +24,7 @@ abstract class Migrator(
         val newVersion = getNewVersion()
 
         // Build migration map
-        val migrationMap = buildMigrationMap(oldVersion, newVersion)
+        val migrationMap = buildMigrationMap(migrations, oldVersion, newVersion)
 
         migrationMap.forEach { migration ->
             migration.migrate()
@@ -35,11 +35,14 @@ abstract class Migrator(
      * A recursive function to build a list of [Migration]s to be run in a sequential order.
      */
     internal fun buildMigrationMap(
+        migrations: List<Migration>,
         oldVersion: Int,
         newVersion: Int
     ): List<Migration> {
         val migrationMap = mutableListOf<Migration>()
-        val migrationsFromOldVersion = migrations.filter { it.fromVersion == oldVersion }
+        val (migrationsFromOldVersion, remainingMigrations) = migrations.separate {
+            it.fromVersion == oldVersion
+        }
         if (migrationsFromOldVersion.count() != 1) {
             throw IllegalArgumentException(
                 "Error getting a migration from version $oldVersion"
@@ -48,7 +51,9 @@ abstract class Migrator(
             val migration = migrationsFromOldVersion.first()
             migrationMap.add(migration)
             if (migration.toVersion < newVersion) {
-                migrationMap.addAll(buildMigrationMap(migration.toVersion, newVersion))
+                migrationMap.addAll(
+                    buildMigrationMap(remainingMigrations, migration.toVersion, newVersion)
+                )
             }
         }
         return migrationMap
