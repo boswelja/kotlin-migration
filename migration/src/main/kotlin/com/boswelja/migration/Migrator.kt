@@ -5,7 +5,7 @@ package com.boswelja.migration
  * @param migrations The available [Migration]s to use.
  */
 abstract class Migrator(
-    private vararg val migrations: Migration
+    private val migrations: List<Migration>
 ) {
 
     /**
@@ -38,7 +38,7 @@ abstract class Migrator(
         oldVersion: Int,
         newVersion: Int
     ): List<Migration> {
-        val migrations = mutableListOf<Migration>()
+        val migrationMap = mutableListOf<Migration>()
         val migrationsFromOldVersion = migrations.filter { it.fromVersion == oldVersion }
         if (migrationsFromOldVersion.count() != 1) {
             throw IllegalArgumentException(
@@ -46,11 +46,11 @@ abstract class Migrator(
             )
         } else {
             val migration = migrationsFromOldVersion.first()
-            migrations.add(migration)
+            migrationMap.add(migration)
             if (migration.toVersion < newVersion) {
-                migrations.addAll(buildMigrationMap(migration.toVersion, newVersion))
+                migrationMap.addAll(buildMigrationMap(migration.toVersion, newVersion))
             }
         }
-        return migrations
+        return migrationMap
     }
 }
