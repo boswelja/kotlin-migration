@@ -5,6 +5,7 @@ package com.boswelja.migration
  * @param migrations The available [Migration]s to use.
  */
 abstract class Migrator(
+    private val currentVersion: Int,
     private val migrations: List<Migration>
 ) {
 
@@ -13,18 +14,12 @@ abstract class Migrator(
      */
     abstract suspend fun getOldVersion(): Int
 
-    /**
-     * Gets the new version to migrate to.
-     */
-    abstract suspend fun getNewVersion(): Int
-
     suspend fun migrate() {
         // Get versions
         val oldVersion = getOldVersion()
-        val newVersion = getNewVersion()
 
         // Build migration map
-        val migrationMap = buildMigrationMap(migrations, oldVersion, newVersion)
+        val migrationMap = buildMigrationMap(migrations, oldVersion)
 
         migrationMap.forEach { migration ->
             migration.migrate()
@@ -36,8 +31,7 @@ abstract class Migrator(
      */
     internal fun buildMigrationMap(
         migrations: List<Migration>,
-        oldVersion: Int,
-        newVersion: Int
+        oldVersion: Int
     ): List<Migration> {
         val migrationMap = mutableListOf<Migration>()
 
@@ -52,9 +46,9 @@ abstract class Migrator(
         migrationMap.add(migration)
 
         // If needed, continue building migration map
-        if (migration.toVersion < newVersion) {
+        if (migration.toVersion < currentVersion) {
             migrationMap.addAll(
-                buildMigrationMap(remainingMigrations, migration.toVersion, newVersion)
+                buildMigrationMap(remainingMigrations, migration.toVersion)
             )
         }
 
