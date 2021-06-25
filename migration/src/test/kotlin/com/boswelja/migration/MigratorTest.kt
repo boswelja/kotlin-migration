@@ -234,4 +234,17 @@ class MigratorTest {
             migrator.migrate()
         }
     }
+
+    @Test
+    fun `migrate() throws exception when old version is greater than current version`() {
+        val migrator = ConcreteMigrator(
+            oldVersion = 2,
+            currentVersion = 1,
+            migrations = emptyList()
+        )
+
+        expectThrows<IllegalStateException> {
+            migrator.migrate()
+        }
+    }
 }
