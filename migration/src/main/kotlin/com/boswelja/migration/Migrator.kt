@@ -27,22 +27,28 @@ abstract class Migrator(
     }
 
     /**
-     * A recursive function to build a list of [Migration]s to be run in a sequential order.
+     * A recursive function to build a list of [Migration]s to be run in a sequential order. Note
+     * this will throw [IllegalArgumentException] if a migration cannot be found from a version.
+     * @param migrations A [List] of available [Migration]s.
+     * @param fromVersion The version to build a migration map from.
+     * @return A [List] of ordered [Migration]s that can be run to reach [currentVersion].
      */
     internal fun buildMigrationMap(
         migrations: List<Migration>,
-        oldVersion: Int
+        fromVersion: Int
     ): List<Migration> {
         val migrationMap = mutableListOf<Migration>()
 
         // Get next available migrations, and all remaining migrations
         val (migrationsFromOldVersion, remainingMigrations) = migrations.separate {
-            it.fromVersion == oldVersion
+            it.fromVersion == fromVersion
         }
 
         // Determine next migration and add to migration map
         val migration = migrationsFromOldVersion.maxByOrNull { it.toVersion }
-            ?: throw IllegalArgumentException("Error getting a migration from version $oldVersion")
+            ?: throw IllegalArgumentException(
+                "Couldn't find a migration from version $fromVersion"
+            )
         migrationMap.add(migration)
 
         // If needed, continue building migration map
