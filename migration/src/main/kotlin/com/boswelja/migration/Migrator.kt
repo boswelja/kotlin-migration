@@ -2,10 +2,13 @@ package com.boswelja.migration
 
 /**
  * A class for executing [Migration]s.
+ * @param currentVersion The current version to use when building migration maps.
+ * @param abortOnError Whether [migrate] should abort when a migration fails.
  * @param migrations The available [Migration]s to use.
  */
 abstract class Migrator(
     private val currentVersion: Int,
+    private val abortOnError: Boolean = true,
     private val migrations: List<Migration>
 ) {
 
@@ -21,12 +24,13 @@ abstract class Migrator(
         // Build migration map
         val migrationMap = buildMigrationMap(migrations, oldVersion)
 
+        var result = true
         migrationMap.forEach { migration ->
-            val result = migration.migrate()
-            if (!result) return false
+            result = migration.migrate()
+            if (abortOnError && !result) return false
         }
 
-        return true
+        return result
     }
 
     /**
