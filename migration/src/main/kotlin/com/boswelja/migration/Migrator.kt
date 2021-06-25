@@ -40,22 +40,24 @@ abstract class Migrator(
         newVersion: Int
     ): List<Migration> {
         val migrationMap = mutableListOf<Migration>()
+
+        // Get next available migrations, and all remaining migrations
         val (migrationsFromOldVersion, remainingMigrations) = migrations.separate {
             it.fromVersion == oldVersion
         }
-        if (migrationsFromOldVersion.count() != 1) {
-            throw IllegalArgumentException(
-                "Error getting a migration from version $oldVersion"
+
+        // Determine next migration and add to migration map
+        val migration = migrationsFromOldVersion.maxByOrNull { it.toVersion }
+            ?: throw IllegalArgumentException("Error getting a migration from version $oldVersion")
+        migrationMap.add(migration)
+
+        // If needed, continue building migration map
+        if (migration.toVersion < newVersion) {
+            migrationMap.addAll(
+                buildMigrationMap(remainingMigrations, migration.toVersion, newVersion)
             )
-        } else {
-            val migration = migrationsFromOldVersion.first()
-            migrationMap.add(migration)
-            if (migration.toVersion < newVersion) {
-                migrationMap.addAll(
-                    buildMigrationMap(remainingMigrations, migration.toVersion, newVersion)
-                )
-            }
         }
+
         return migrationMap
     }
 }
