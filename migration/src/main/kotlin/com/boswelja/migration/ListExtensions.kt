@@ -7,7 +7,7 @@ package com.boswelja.migration
  * @return a [Pair] of [List]s, where [Pair.first] contains all elements matching [predicate], and
  * [Pair.second] contains all elements not matching [predicate].
  */
-fun <T> List<T>.separate(predicate: (T) -> Boolean): Pair<List<T>, List<T>> {
+suspend fun <T> List<T>.separate(predicate: suspend (T) -> Boolean): Pair<List<T>, List<T>> {
     val matching = mutableListOf<T>()
     val notMatching = mutableListOf<T>()
 
