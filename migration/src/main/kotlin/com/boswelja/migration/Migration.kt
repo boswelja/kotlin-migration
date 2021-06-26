@@ -31,9 +31,9 @@ interface Migration {
  */
 abstract class VersionMigration(
     val fromVersion: Int,
-    override val toVersion: Int
+    final override val toVersion: Int
 ) : Migration {
-    override suspend fun shouldMigrate(fromVersion: Int): Boolean {
+    final override suspend fun shouldMigrate(fromVersion: Int): Boolean {
         // Run this migration if fromVersion is the same as the version provided by the user
         return fromVersion == this.fromVersion
     }
@@ -44,5 +44,5 @@ abstract class VersionMigration(
  * @param toVersion The version to migrate to.
  */
 abstract class ConditionalMigration(
-    override val toVersion: Int
+    final override val toVersion: Int
 ) : Migration
