@@ -45,7 +45,7 @@ abstract class Migrator(
      * @param fromVersion The version to build a migration map from.
      * @return A [List] of ordered [Migration]s that can be run to reach [currentVersion].
      */
-    internal fun buildMigrationMap(
+    internal suspend fun buildMigrationMap(
         migrations: List<Migration>,
         fromVersion: Int
     ): List<Migration> {
@@ -53,7 +53,7 @@ abstract class Migrator(
 
         // Get next available migrations, and all remaining migrations
         val (migrationsFromOldVersion, remainingMigrations) = migrations.separate {
-            it.fromVersion == fromVersion
+            it.shouldMigrate(fromVersion)
         }
 
         // Determine next migration and add to migration map

@@ -15,7 +15,7 @@ class MigratorTest {
     @Test
     fun `migrate() succeeds with one migration`() {
         // Set up dummy migrations
-        val migration = object : Migration(1, 2) {
+        val migration = object : VersionMigration(1, 2) {
             override suspend fun migrate(): Boolean {
                 return true
             }
@@ -34,7 +34,7 @@ class MigratorTest {
     @Test
     fun `migrate() fails when migration fails`() {
         // Set up dummy migrations
-        val migration = object : Migration(1, 2) {
+        val migration = object : VersionMigration(1, 2) {
             override suspend fun migrate(): Boolean {
                 return false
             }
@@ -55,17 +55,17 @@ class MigratorTest {
         // Create some ordered migrations
         val orderedMigrations = listOf(
             spyk(
-                object : Migration(1, 2) {
+                object : VersionMigration(1, 2) {
                     override suspend fun migrate(): Boolean = true
                 }
             ),
             spyk(
-                object : Migration(2, 3) {
+                object : VersionMigration(2, 3) {
                     override suspend fun migrate(): Boolean = true
                 }
             ),
             spyk(
-                object : Migration(3, 4) {
+                object : VersionMigration(3, 4) {
                     override suspend fun migrate(): Boolean = true
                 }
             )
@@ -94,17 +94,17 @@ class MigratorTest {
         // Create some ordered migrations
         val migrations = listOf(
             spyk(
-                object : Migration(1, 2) {
+                object : VersionMigration(1, 2) {
                     override suspend fun migrate(): Boolean = true
                 }
             ),
             spyk(
-                object : Migration(2, 3) {
+                object : VersionMigration(2, 3) {
                     override suspend fun migrate(): Boolean = true
                 }
             ),
             spyk(
-                object : Migration(3, 4) {
+                object : VersionMigration(3, 4) {
                     override suspend fun migrate(): Boolean = true
                 }
             )
@@ -132,12 +132,12 @@ class MigratorTest {
     fun `abortOnError aborts on error when true`() {
         val migrations = listOf(
             spyk(
-                object : Migration(1, 2) {
+                object : VersionMigration(1, 2) {
                     override suspend fun migrate(): Boolean = false
                 }
             ),
             spyk(
-                object : Migration(2, 3) {
+                object : VersionMigration(2, 3) {
                     override suspend fun migrate(): Boolean = true
                 }
             )
@@ -158,12 +158,12 @@ class MigratorTest {
     fun `abortOnError continues on error when false`() {
         val migrations = listOf(
             spyk(
-                object : Migration(1, 2) {
+                object : VersionMigration(1, 2) {
                     override suspend fun migrate(): Boolean = false
                 }
             ),
             spyk(
-                object : Migration(2, 3) {
+                object : VersionMigration(2, 3) {
                     override suspend fun migrate(): Boolean = true
                 }
             )
@@ -183,10 +183,10 @@ class MigratorTest {
     @Test
     fun `migrate() returns false on error`() {
         val migrations = listOf(
-            object : Migration(1, 2) {
+            object : VersionMigration(1, 2) {
                 override suspend fun migrate(): Boolean = false
             },
-            object : Migration(2, 3) {
+            object : VersionMigration(2, 3) {
                 override suspend fun migrate(): Boolean = true
             }
         )
@@ -204,10 +204,10 @@ class MigratorTest {
     @Test
     fun `migrate() returns true on success`() {
         val migrations = listOf(
-            object : Migration(1, 2) {
+            object : VersionMigration(1, 2) {
                 override suspend fun migrate(): Boolean = true
             },
-            object : Migration(2, 3) {
+            object : VersionMigration(2, 3) {
                 override suspend fun migrate(): Boolean = true
             }
         )
