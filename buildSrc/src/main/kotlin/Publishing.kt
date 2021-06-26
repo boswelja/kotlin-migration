@@ -17,7 +17,7 @@ object Publishing {
     val ossrhPassword: String?
         get() = System.getenv("OSSRH_PASSWORD")
 
-    const val groupId = "io.github.boswelja.watchconnection"
+    const val groupId = "io.github.boswelja.migration"
 
     val signingKeyId: String?
         get() = System.getenv("SIGNING_KEY_ID")
