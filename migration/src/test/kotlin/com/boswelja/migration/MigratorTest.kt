@@ -90,7 +90,7 @@ class MigratorTest {
     }
 
     @Test
-    fun `migrate() does nothing when version hasn't changed`() {
+    fun `migrate() runs conditional migrations even when version hasn't changed`() {
         // Create some ordered migrations
         val migrations = listOf(
             spyk(
@@ -104,8 +104,9 @@ class MigratorTest {
                 }
             ),
             spyk(
-                object : VersionMigration(3, 4) {
+                object : ConditionalMigration(4) {
                     override suspend fun migrate(): Boolean = true
+                    override suspend fun shouldMigrate(fromVersion: Int): Boolean = true
                 }
             )
         )
@@ -120,12 +121,13 @@ class MigratorTest {
         // Run migrations
         runBlocking { migrator.migrate() }
 
-        // Check migrations were not executed
+        // Check version migrations were not executed
         coVerify(inverse = true) {
             migrations[0].migrate()
             migrations[1].migrate()
-            migrations[2].migrate()
         }
+        // Check conditional migration was executed
+        coVerify { migrations[2].migrate() }
     }
 
     @Test

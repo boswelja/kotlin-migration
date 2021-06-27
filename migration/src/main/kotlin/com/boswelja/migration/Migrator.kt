@@ -23,7 +23,7 @@ abstract class Migrator(
 
         var result = true
 
-        if (oldVersion < currentVersion) {
+        if (oldVersion <= currentVersion) {
             // Build migration map
             val migrationMap = buildMigrationMap(migrations, oldVersion)
 
