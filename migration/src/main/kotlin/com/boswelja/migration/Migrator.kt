@@ -27,14 +27,15 @@ abstract class Migrator(
         // Build migration map
         val migrationMap = buildMigrationMap(migrations, oldVersion)
 
-        // Return before starting if migration isn't needed
-        if (migrationMap.isEmpty()) {
-            return Result.NOT_NEEDED
-        }
-
-        var result = Result.SUCCESS
+        var result = Result.NOT_NEEDED
         migrationMap.forEach { migration ->
-            result = migration.migrate()
+            migration.migrate().let { migrationResult ->
+                // Only update the result if it's not already failed
+                if (result != Result.FAILED) {
+                    result = migrationResult
+                }
+            }
+
             if (abortOnError && result == Result.FAILED) return Result.FAILED
         }
 
