@@ -7,7 +7,7 @@ package com.boswelja.migration
  * @param migrations The available [Migration]s to use.
  */
 abstract class Migrator(
-    private val currentVersion: Int,
+    val currentVersion: Int,
     private val abortOnError: Boolean = true,
     private val migrations: List<Migration>
 ) {
@@ -16,6 +16,13 @@ abstract class Migrator(
      * Get the old version to migrate from.
      */
     abstract suspend fun getOldVersion(): Int
+
+    /**
+     * Called when we've successfully migrated to a new version, and there are no pending migrations
+     * left.
+     * @param version The version we migrated to.
+     */
+    abstract suspend fun onMigratedTo(version: Int)
 
     suspend fun migrate(): Boolean {
         // Get versions
@@ -28,10 +35,18 @@ abstract class Migrator(
         val migrationMap = buildMigrationMap(migrations, oldVersion)
 
         var result = true
+        var version = oldVersion
         migrationMap.forEach { migration ->
             result = migration.migrate()
-            if (abortOnError && !result) return false
+            if (result) {
+                version = migration.toVersion
+            } else if (abortOnError) {
+                onMigratedTo(version)
+                return false
+            }
         }
+
+        onMigratedTo(version)
 
         return result
     }
