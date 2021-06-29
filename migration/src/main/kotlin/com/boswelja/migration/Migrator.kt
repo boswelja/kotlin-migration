@@ -17,7 +17,7 @@ abstract class Migrator(
      */
     abstract suspend fun getOldVersion(): Int
 
-    suspend fun migrate(): Boolean {
+    suspend fun migrate(): Result {
         // Get versions
         val oldVersion = getOldVersion()
 
@@ -27,10 +27,15 @@ abstract class Migrator(
         // Build migration map
         val migrationMap = buildMigrationMap(migrations, oldVersion)
 
-        var result = true
+        // Return before starting if migration isn't needed
+        if (migrationMap.isEmpty()) {
+            return Result.NOT_NEEDED
+        }
+
+        var result = Result.SUCCESS
         migrationMap.forEach { migration ->
             result = migration.migrate()
-            if (abortOnError && !result) return false
+            if (abortOnError && result == Result.FAILED) return Result.FAILED
         }
 
         return result
