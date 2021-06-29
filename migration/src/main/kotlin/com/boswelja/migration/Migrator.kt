@@ -21,18 +21,16 @@ abstract class Migrator(
         // Get versions
         val oldVersion = getOldVersion()
 
+        // Check old version isn't greater than current version
+        check(oldVersion <= currentVersion)
+
+        // Build migration map
+        val migrationMap = buildMigrationMap(migrations, oldVersion)
+
         var result = true
-
-        if (oldVersion <= currentVersion) {
-            // Build migration map
-            val migrationMap = buildMigrationMap(migrations, oldVersion)
-
-            migrationMap.forEach { migration ->
-                result = migration.migrate()
-                if (abortOnError && !result) return false
-            }
-        } else if (oldVersion > currentVersion) {
-            throw IllegalStateException("Old version cannot be higher than the current version")
+        migrationMap.forEach { migration ->
+            result = migration.migrate()
+            if (abortOnError && !result) return false
         }
 
         return result
@@ -58,9 +56,8 @@ abstract class Migrator(
 
         // Determine next migration and add to migration map
         val migration = migrationsFromOldVersion.maxByOrNull { it.toVersion }
-            ?: throw IllegalArgumentException(
-                "Couldn't find a migration from version $fromVersion"
-            )
+        checkNotNull(migration) { "Couldn't find a migration from version $fromVersion" }
+
         migrationMap.add(migration)
 
         // If needed, continue building migration map

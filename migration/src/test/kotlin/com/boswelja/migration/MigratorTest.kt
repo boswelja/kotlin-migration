@@ -232,7 +232,7 @@ class MigratorTest {
             migrations = emptyList()
         )
 
-        expectThrows<IllegalArgumentException> {
+        expectThrows<IllegalStateException> {
             migrator.migrate()
         }
     }
