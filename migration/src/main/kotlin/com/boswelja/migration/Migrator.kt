@@ -17,6 +17,13 @@ abstract class Migrator(
      */
     abstract suspend fun getOldVersion(): Int
 
+    /**
+     * Called when we've successfully migrated to a new version, and there are no pending migrations
+     * left.
+     * @param version The version we migrated to.
+     */
+    abstract suspend fun onMigratedTo(version: Int)
+
     suspend fun migrate(): Boolean {
         // Get versions
         val oldVersion = getOldVersion()
@@ -28,10 +35,18 @@ abstract class Migrator(
         val migrationMap = buildMigrationMap(migrations, oldVersion)
 
         var result = true
+        var version = oldVersion
         migrationMap.forEach { migration ->
             result = migration.migrate()
-            if (abortOnError && !result) return false
+            if (result) {
+                version = migration.toVersion
+            } else if (abortOnError) {
+                onMigratedTo(version)
+                return false
+            }
         }
+
+        onMigratedTo(version)
 
         return result
     }
