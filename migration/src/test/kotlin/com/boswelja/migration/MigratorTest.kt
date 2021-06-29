@@ -160,7 +160,7 @@ class MigratorTest {
         val migrations = listOf(
             spyk(
                 object : VersionMigration(1, 2) {
-                    override suspend fun migrate(): Result = Result.SUCCESS
+                    override suspend fun migrate(): Result = Result.FAILED
                 }
             ),
             spyk(
