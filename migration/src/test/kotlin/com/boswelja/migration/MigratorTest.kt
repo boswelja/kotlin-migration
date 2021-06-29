@@ -182,6 +182,32 @@ class MigratorTest {
     }
 
     @Test
+    fun `abortOnError still returns failure`() {
+        val migrations = listOf(
+            spyk(
+                object : VersionMigration(1, 2) {
+                    override suspend fun migrate(): Result = Result.FAILED
+                }
+            ),
+            spyk(
+                object : VersionMigration(2, 3) {
+                    override suspend fun migrate(): Result = Result.SUCCESS
+                }
+            )
+        )
+        val migrator = ConcreteMigrator(
+            oldVersion = 1,
+            currentVersion = 3,
+            abortOnError = false,
+            migrations = migrations
+        )
+
+        val result = runBlocking { migrator.migrate() }
+
+        expectThat(result).isEqualTo(Result.FAILED)
+    }
+
+    @Test
     fun `migrate() returns false on error`() {
         val migrations = listOf(
             object : VersionMigration(1, 2) {
