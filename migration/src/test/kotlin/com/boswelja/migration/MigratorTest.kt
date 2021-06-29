@@ -89,6 +89,21 @@ class MigratorTest {
     }
 
     @Test
+    fun `migrate() returns not_needed when no migrations were run`() {
+        // Create a Migrator with no migrations
+        val migrator = ConcreteMigrator(
+            oldVersion = 4,
+            currentVersion = 4,
+            migrations = emptyList()
+        )
+
+        // Run migrations
+        val result = runBlocking { migrator.migrate() }
+
+        expectThat(result).isEqualTo(Result.NOT_NEEDED)
+    }
+
+    @Test
     fun `migrate() runs conditional migrations even when version hasn't changed`() {
         // Create some ordered migrations
         val migrations = listOf(
@@ -208,7 +223,7 @@ class MigratorTest {
     }
 
     @Test
-    fun `migrate() returns false on error`() {
+    fun `migrate() returns failed on error`() {
         val migrations = listOf(
             object : VersionMigration(1, 2) {
                 override suspend fun migrate(): Result = Result.FAILED
@@ -229,7 +244,7 @@ class MigratorTest {
     }
 
     @Test
-    fun `migrate() returns true on success`() {
+    fun `migrate() returns success on success`() {
         val migrations = listOf(
             object : VersionMigration(1, 2) {
                 override suspend fun migrate(): Result = Result.SUCCESS
