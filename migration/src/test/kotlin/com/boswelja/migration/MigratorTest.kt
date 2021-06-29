@@ -289,4 +289,46 @@ class MigratorTest {
             migrator.migrate()
         }
     }
+
+    @Test
+    fun `onMigrateTo() is called after successful migration`() {
+        val migrations = listOf(
+            object : VersionMigration(1, 2) {
+                override suspend fun migrate(): Result = Result.SUCCESS
+            },
+            object : VersionMigration(2, 3) {
+                override suspend fun migrate(): Result = Result.SUCCESS
+            }
+        )
+        val migrator = ConcreteMigrator(
+            oldVersion = 1,
+            currentVersion = 3,
+            migrations = migrations
+        )
+
+        runBlocking { migrator.migrate() }
+
+        expectThat(migrator.migratedTo).isEqualTo(3)
+    }
+
+    @Test
+    fun `onMigrateTo() is called after failed migration`() {
+        val migrations = listOf(
+            object : VersionMigration(1, 2) {
+                override suspend fun migrate(): Result = Result.SUCCESS
+            },
+            object : VersionMigration(2, 3) {
+                override suspend fun migrate(): Result = Result.FAILED
+            }
+        )
+        val migrator = ConcreteMigrator(
+            oldVersion = 1,
+            currentVersion = 3,
+            migrations = migrations
+        )
+
+        runBlocking { migrator.migrate() }
+
+        expectThat(migrator.migratedTo).isEqualTo(2)
+    }
 }
