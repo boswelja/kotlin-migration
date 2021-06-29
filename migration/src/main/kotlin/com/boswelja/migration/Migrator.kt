@@ -7,7 +7,7 @@ package com.boswelja.migration
  * @param migrations The available [Migration]s to use.
  */
 abstract class Migrator(
-    private val currentVersion: Int,
+    val currentVersion: Int,
     private val abortOnError: Boolean = true,
     private val migrations: List<Migration>
 ) {
