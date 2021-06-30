@@ -25,7 +25,7 @@ jobs:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-cache-${{ hashFiles('**/*.gradle.kts') }}
       - name: Build
-        run: bash ./gradlew assemble --stacktrace
+        run: bash ./gradlew build --stacktrace
 
   test:
     name: Unit Tests
