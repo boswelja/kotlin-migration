@@ -6,6 +6,9 @@ plugins {
     id("signing")
 }
 
+group = Publishing.groupId
+version = Publishing.version ?: "0.1.0"
+
 dependencies {
     api(libs.kotlinx.coroutines.core)
 
