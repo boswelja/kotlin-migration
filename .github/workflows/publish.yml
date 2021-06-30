@@ -88,4 +88,4 @@ jobs:
           tag: ${{ steps.version.outputs.version }}
           token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: ${{ github.event.inputs.prerelease }}
-          artifacts: '**/build/libs/*.jar'
+          artifacts: '**/build/libs/*-${{ steps.version.outputs.version }}-*.jar'
