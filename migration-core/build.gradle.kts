@@ -41,7 +41,7 @@ publishing {
         create(
             "release",
             configureMavenPublication(
-                "migration-core",
+                project.name,
                 "A Kotlin library to enable easier program migrations, inspired by AndroidX Room",
                 "https://github.com/boswelja/android-migration",
                 project.configurations.implementation.get().allDependencies
