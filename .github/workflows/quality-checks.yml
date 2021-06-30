@@ -65,7 +65,6 @@ jobs:
         uses: le0nidas/ktlint-pr-comments@v1.2
         with:
           repotoken: ${{ secrets.GITHUB_TOKEN }}
-          arguments: "--android"
       - name: Cache Gradle packages
         uses: actions/cache@v2.1.6
         with:
