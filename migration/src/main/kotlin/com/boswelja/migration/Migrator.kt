@@ -76,6 +76,10 @@ abstract class Migrator(
 
         // Determine next migration and add to migration map
         val migration = migrationsFromOldVersion.maxByOrNull { it.toVersion }
+        if (migration == null && fromVersion == currentVersion) {
+            // If no migrations were found, and there was no version change, return our migrations
+            return migrationMap
+        }
         checkNotNull(migration) { "Couldn't find a migration from version $fromVersion" }
 
         migrationMap.add(migration)
