@@ -1,45 +1,16 @@
 import Publishing.configureMavenPublication
 
+version = Publishing.version ?: "0.1.0"
+
 plugins {
-    id("com.android.library")
-    kotlin("android")
+    id("kotlin")
     id("maven-publish")
     id("signing")
-}
-
-android {
-    compileSdk = Sdk.target
-
-    defaultConfig {
-        minSdk = Sdk.min
-        targetSdk = Sdk.target
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
 }
 
 dependencies {
     api(libs.kotlinx.coroutines.core)
 
-    testImplementation(libs.androidx.test.ext)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.junit)
     testImplementation(libs.strikt.core)
@@ -47,13 +18,17 @@ dependencies {
     testImplementation(libs.robolectric)
 }
 
-// Bundle sources with binaries
-val androidSourcesJar by tasks.registering(Jar::class) {
-    archiveClassifier.set("sources")
-    from(android.sourceSets["main"].kotlin.name)
+// Build sources too
+java {
+    withSourcesJar()
 }
-artifacts {
-    archives(androidSourcesJar)
+
+// Add name and version to manifest
+tasks.jar {
+    manifest {
+        attributes(mapOf("Implementation-Title" to project.name,
+                         "Implementation-Version" to project.version))
+    }
 }
 
 publishing {
@@ -61,13 +36,13 @@ publishing {
         create(
             "release",
             configureMavenPublication(
-                "migration",
-                "An Android library to enable easy app migrations, inspired by Room",
+                "migration-core",
+                "A Kotlin library to enable easier program migrations, inspired by AndroidX Room",
                 "https://github.com/boswelja/android-migration",
                 project.configurations.implementation.get().allDependencies
             ) {
-                artifact("$buildDir/outputs/aar/${project.name}-release.aar")
-                artifact(androidSourcesJar)
+                artifact("$buildDir/libs/${project.name}-${project.version}.jar")
+                artifact("$buildDir/libs/${project.name}-${project.version}-sources.jar")
             }
         )
     }
