@@ -24,7 +24,7 @@ abstract class Migrator(
      */
     abstract suspend fun onMigratedTo(version: Int)
 
-    suspend fun migrate(): Boolean {
+    suspend fun migrate(): Result {
         // Get versions
         val oldVersion = getOldVersion()
 
@@ -34,15 +34,20 @@ abstract class Migrator(
         // Build migration map
         val migrationMap = buildMigrationMap(migrations, oldVersion)
 
-        var result = true
+        var result = Result.NOT_NEEDED
         var version = oldVersion
         migrationMap.forEach { migration ->
-            result = migration.migrate()
-            if (result) {
+            migration.migrate().let { migrationResult ->
+                // Only update the result if it's not already failed
+                if (result != Result.FAILED) {
+                    result = migrationResult
+                }
+            }
+            if (result == Result.SUCCESS) {
                 version = migration.toVersion
-            } else if (abortOnError) {
+            } else if (result == Result.FAILED && abortOnError) {
                 onMigratedTo(version)
-                return false
+                return result
             }
         }
 
@@ -71,6 +76,10 @@ abstract class Migrator(
 
         // Determine next migration and add to migration map
         val migration = migrationsFromOldVersion.maxByOrNull { it.toVersion }
+        if (migration == null && fromVersion == currentVersion) {
+            // If no migrations were found, and there was no version change, return our migrations
+            return migrationMap
+        }
         checkNotNull(migration) { "Couldn't find a migration from version $fromVersion" }
 
         migrationMap.add(migration)

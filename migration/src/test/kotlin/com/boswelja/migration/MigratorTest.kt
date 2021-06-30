@@ -8,8 +8,6 @@ import org.junit.Test
 import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.isEqualTo
-import strikt.assertions.isFalse
-import strikt.assertions.isTrue
 
 class MigratorTest {
 
@@ -17,8 +15,8 @@ class MigratorTest {
     fun `migrate() succeeds with one migration`() {
         // Set up dummy migrations
         val migration = object : VersionMigration(1, 2) {
-            override suspend fun migrate(): Boolean {
-                return true
+            override suspend fun migrate(): Result {
+                return Result.SUCCESS
             }
         }
         val migrator = ConcreteMigrator(
@@ -29,15 +27,15 @@ class MigratorTest {
 
         val result = runBlocking { migrator.migrate() }
 
-        expectThat(result).isTrue()
+        expectThat(result).isEqualTo(Result.SUCCESS)
     }
 
     @Test
     fun `migrate() fails when migration fails`() {
         // Set up dummy migrations
         val migration = object : VersionMigration(1, 2) {
-            override suspend fun migrate(): Boolean {
-                return false
+            override suspend fun migrate(): Result {
+                return Result.FAILED
             }
         }
         val migrator = ConcreteMigrator(
@@ -48,7 +46,7 @@ class MigratorTest {
 
         val result = runBlocking { migrator.migrate() }
 
-        expectThat(result).isFalse()
+        expectThat(result).isEqualTo(Result.FAILED)
     }
 
     @Test
@@ -57,17 +55,17 @@ class MigratorTest {
         val orderedMigrations = listOf(
             spyk(
                 object : VersionMigration(1, 2) {
-                    override suspend fun migrate(): Boolean = true
+                    override suspend fun migrate(): Result = Result.SUCCESS
                 }
             ),
             spyk(
                 object : VersionMigration(2, 3) {
-                    override suspend fun migrate(): Boolean = true
+                    override suspend fun migrate(): Result = Result.SUCCESS
                 }
             ),
             spyk(
                 object : VersionMigration(3, 4) {
-                    override suspend fun migrate(): Boolean = true
+                    override suspend fun migrate(): Result = Result.SUCCESS
                 }
             )
         )
@@ -91,22 +89,37 @@ class MigratorTest {
     }
 
     @Test
+    fun `migrate() returns not_needed when no migrations were run`() {
+        // Create a Migrator with no migrations
+        val migrator = ConcreteMigrator(
+            oldVersion = 4,
+            currentVersion = 4,
+            migrations = emptyList()
+        )
+
+        // Run migrations
+        val result = runBlocking { migrator.migrate() }
+
+        expectThat(result).isEqualTo(Result.NOT_NEEDED)
+    }
+
+    @Test
     fun `migrate() runs conditional migrations even when version hasn't changed`() {
         // Create some ordered migrations
         val migrations = listOf(
             spyk(
                 object : VersionMigration(1, 2) {
-                    override suspend fun migrate(): Boolean = true
+                    override suspend fun migrate(): Result = Result.SUCCESS
                 }
             ),
             spyk(
                 object : VersionMigration(2, 3) {
-                    override suspend fun migrate(): Boolean = true
+                    override suspend fun migrate(): Result = Result.SUCCESS
                 }
             ),
             spyk(
                 object : ConditionalMigration(4) {
-                    override suspend fun migrate(): Boolean = true
+                    override suspend fun migrate(): Result = Result.SUCCESS
                     override suspend fun shouldMigrate(fromVersion: Int): Boolean = true
                 }
             )
@@ -136,12 +149,12 @@ class MigratorTest {
         val migrations = listOf(
             spyk(
                 object : VersionMigration(1, 2) {
-                    override suspend fun migrate(): Boolean = false
+                    override suspend fun migrate(): Result = Result.FAILED
                 }
             ),
             spyk(
                 object : VersionMigration(2, 3) {
-                    override suspend fun migrate(): Boolean = true
+                    override suspend fun migrate(): Result = Result.SUCCESS
                 }
             )
         )
@@ -162,12 +175,12 @@ class MigratorTest {
         val migrations = listOf(
             spyk(
                 object : VersionMigration(1, 2) {
-                    override suspend fun migrate(): Boolean = false
+                    override suspend fun migrate(): Result = Result.FAILED
                 }
             ),
             spyk(
                 object : VersionMigration(2, 3) {
-                    override suspend fun migrate(): Boolean = true
+                    override suspend fun migrate(): Result = Result.SUCCESS
                 }
             )
         )
@@ -184,34 +197,39 @@ class MigratorTest {
     }
 
     @Test
-    fun `migrate() returns false on error`() {
+    fun `abortOnError still returns failure`() {
         val migrations = listOf(
-            object : VersionMigration(1, 2) {
-                override suspend fun migrate(): Boolean = false
-            },
-            object : VersionMigration(2, 3) {
-                override suspend fun migrate(): Boolean = true
-            }
+            spyk(
+                object : VersionMigration(1, 2) {
+                    override suspend fun migrate(): Result = Result.FAILED
+                }
+            ),
+            spyk(
+                object : VersionMigration(2, 3) {
+                    override suspend fun migrate(): Result = Result.SUCCESS
+                }
+            )
         )
         val migrator = ConcreteMigrator(
             oldVersion = 1,
             currentVersion = 3,
+            abortOnError = false,
             migrations = migrations
         )
 
         val result = runBlocking { migrator.migrate() }
 
-        expectThat(result).isFalse()
+        expectThat(result).isEqualTo(Result.FAILED)
     }
 
     @Test
-    fun `migrate() returns true on success`() {
+    fun `migrate() returns failed on error`() {
         val migrations = listOf(
             object : VersionMigration(1, 2) {
-                override suspend fun migrate(): Boolean = true
+                override suspend fun migrate(): Result = Result.FAILED
             },
             object : VersionMigration(2, 3) {
-                override suspend fun migrate(): Boolean = true
+                override suspend fun migrate(): Result = Result.SUCCESS
             }
         )
         val migrator = ConcreteMigrator(
@@ -222,7 +240,28 @@ class MigratorTest {
 
         val result = runBlocking { migrator.migrate() }
 
-        expectThat(result).isTrue()
+        expectThat(result).isEqualTo(Result.FAILED)
+    }
+
+    @Test
+    fun `migrate() returns success on success`() {
+        val migrations = listOf(
+            object : VersionMigration(1, 2) {
+                override suspend fun migrate(): Result = Result.SUCCESS
+            },
+            object : VersionMigration(2, 3) {
+                override suspend fun migrate(): Result = Result.SUCCESS
+            }
+        )
+        val migrator = ConcreteMigrator(
+            oldVersion = 1,
+            currentVersion = 3,
+            migrations = migrations
+        )
+
+        val result = runBlocking { migrator.migrate() }
+
+        expectThat(result).isEqualTo(Result.SUCCESS)
     }
 
     @Test
@@ -255,10 +294,10 @@ class MigratorTest {
     fun `onMigrateTo() is called after successful migration`() {
         val migrations = listOf(
             object : VersionMigration(1, 2) {
-                override suspend fun migrate(): Boolean = true
+                override suspend fun migrate(): Result = Result.SUCCESS
             },
             object : VersionMigration(2, 3) {
-                override suspend fun migrate(): Boolean = true
+                override suspend fun migrate(): Result = Result.SUCCESS
             }
         )
         val migrator = ConcreteMigrator(
@@ -276,10 +315,10 @@ class MigratorTest {
     fun `onMigrateTo() is called after failed migration`() {
         val migrations = listOf(
             object : VersionMigration(1, 2) {
-                override suspend fun migrate(): Boolean = true
+                override suspend fun migrate(): Result = Result.SUCCESS
             },
             object : VersionMigration(2, 3) {
-                override suspend fun migrate(): Boolean = false
+                override suspend fun migrate(): Result = Result.FAILED
             }
         )
         val migrator = ConcreteMigrator(
