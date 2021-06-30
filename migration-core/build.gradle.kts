@@ -1,7 +1,5 @@
 import Publishing.configureMavenPublication
 
-version = Publishing.version ?: "0.1.0"
-
 plugins {
     id("kotlin")
     id("maven-publish")
