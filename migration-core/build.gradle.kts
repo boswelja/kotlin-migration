@@ -46,8 +46,7 @@ publishing {
                 "https://github.com/boswelja/android-migration",
                 project.configurations.implementation.get().allDependencies
             ) {
-                artifact("$buildDir/libs/${project.name}-${project.version}.jar")
-                artifact("$buildDir/libs/${project.name}-${project.version}-sources.jar")
+                from(components["java"])
             }
         )
     }
