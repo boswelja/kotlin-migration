@@ -1,5 +1,5 @@
 # android-migration
-An Android library to enable easy app migrations, inspired by Room
+A Kotlin library to enable easier program migrations, inspired by AndroidX Room
 
 ## Usage
 
@@ -7,7 +7,7 @@ An Android library to enable easy app migrations, inspired by Room
 
 ```kotlin
 dependencies {
-  implementation("io.github.boswelja.migration:migration:$version")
+  implementation("io.github.boswelja.migration:migration-core:$version")
 }
 ```
 
