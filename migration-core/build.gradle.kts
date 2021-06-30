@@ -22,6 +22,7 @@ dependencies {
 // Build sources too
 java {
     withSourcesJar()
+    withJavadocJar()
 }
 
 // Add name and version to manifest
