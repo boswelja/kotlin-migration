@@ -1,6 +1,5 @@
-import kotlinx.benchmark.gradle.*
-import org.jetbrains.kotlin.allopen.gradle.*
-import org.jetbrains.kotlin.gradle.tasks.*
+import org.jetbrains.kotlin.allopen.gradle.AllOpenExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("kotlin")
@@ -29,12 +28,11 @@ benchmark {
         named("main") {
             iterationTime = 5
             iterationTimeUnit = "sec"
-            
         }
     }
     targets {
         register("main") {
-            this as JvmBenchmarkTarget
+            this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
             jmhVersion = "1.21"
         }
     }
