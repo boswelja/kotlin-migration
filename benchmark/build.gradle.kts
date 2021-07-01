@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.allopen.gradle.AllOpenExtension
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("kotlin")
@@ -11,12 +10,6 @@ configure<AllOpenExtension> {
     annotation("org.openjdk.jmh.annotations.State")
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-
 dependencies {
     implementation(projects.migrationCore)
 
@@ -25,10 +18,7 @@ dependencies {
 
 benchmark {
     configurations {
-        named("main") {
-            iterationTime = 5
-            iterationTimeUnit = "sec"
-        }
+        named("main")
     }
     targets {
         register("main") {
