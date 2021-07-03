@@ -48,7 +48,7 @@ jobs:
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-cache-${{ hashFiles('**/*.gradle.kts') }}
-      - name: Benchmark PR
+      - name: Benchmark main
         run: bash ./gradlew mainBenchmark
       - name: Generate benchmark table
         uses: boswelja/kotlinx-benchmark-table-action@0.0.2
