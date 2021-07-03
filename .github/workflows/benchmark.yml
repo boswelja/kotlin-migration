@@ -60,5 +60,10 @@ jobs:
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@1.0.1
         with:
-          message: '# Benchmarks\n\n## Main\n\n ${{ steps.main-table.outputs.benchmark-table }}\n\n## This PR\n\n${{ steps.pr-table.outputs.benchmark-table }}'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          message: |
+            "# Benchmarks" |
+            "## Main" |
+            ${{ steps.main-table.outputs.benchmark-table }} |
+            "## This PR" |
+            ${{ steps.pr-table.outputs.benchmark-table }}
