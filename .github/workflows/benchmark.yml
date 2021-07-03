@@ -1,7 +1,7 @@
 name: Benchmarks
 
 on:
-  pull_request:
+  pull_request_review:
     branches:
       - 'main'
     paths-ignore:
@@ -9,7 +9,7 @@ on:
       - '**.md'
       - '.github/*.yml'
     types:
-      [review_requested]
+      [submitted]
 
 jobs:
   benchmark:
