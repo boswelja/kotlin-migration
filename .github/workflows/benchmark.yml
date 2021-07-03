@@ -62,8 +62,10 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           message: |
-            "# Benchmarks" |
-            "## Main" |
-            ${{ steps.main-table.outputs.benchmark-table }} |
-            "## This PR" |
+            # Benchmarks
+
+            ## Main
+            ${{ steps.main-table.outputs.benchmark-table }}
+
+            ## This PR
             ${{ steps.pr-table.outputs.benchmark-table }}
