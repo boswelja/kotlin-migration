@@ -34,12 +34,12 @@ abstract class Migrator(
         val (versionMigrations, constantMigrations) = migrations.separate { it.toVersion != null }
 
         // Handle constant migrations
-        runConstantMigrations(oldVersion, constantMigrations)
+        val constantsResult = runConstantMigrations(oldVersion, constantMigrations)
 
         // Handle versioned migrations
-        val result = runVersionedMigrations(oldVersion, versionMigrations)
+        val versionedResult = runVersionedMigrations(oldVersion, versionMigrations)
 
-        return result
+        return combineResults(constantsResult, versionedResult)
     }
 
     /**
@@ -113,6 +113,22 @@ abstract class Migrator(
 
         onMigratedTo(version)
 
+        return result
+    }
+
+    /**
+     * Combine a number of [Result]s into a single [Result].
+     * @param results The [Result]s to combine.
+     * @return the combined result.
+     */
+    internal fun combineResults(vararg results: Result): Result {
+        val result = if (results.all { it == Result.SUCCESS }) {
+            Result.SUCCESS
+        } else if (results.all { it == Result.NOT_NEEDED }) {
+            Result.NOT_NEEDED
+        } else {
+            Result.FAILED
+        }
         return result
     }
 }
