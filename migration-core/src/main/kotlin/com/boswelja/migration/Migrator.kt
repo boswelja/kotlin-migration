@@ -31,8 +31,13 @@ abstract class Migrator(
         // Check old version isn't greater than current version
         check(oldVersion <= currentVersion)
 
+        val (versionMigrations, constantMigrations) = migrations.separate { it.toVersion != null }
+
+        // Handle constant migrations
+        runConstantMigrations(oldVersion, constantMigrations)
+
         // Build migration map
-        val migrationMap = buildMigrationMap(migrations, oldVersion)
+        val migrationMap = buildMigrationMap(versionMigrations, oldVersion)
 
         var result = Result.NOT_NEEDED
         var version = oldVersion
@@ -44,7 +49,7 @@ abstract class Migrator(
                 }
             }
             if (result == Result.SUCCESS) {
-                version = migration.toVersion
+                migration.toVersion?.let { version = it }
             } else if (result == Result.FAILED && abortOnError) {
                 onMigratedTo(version)
                 return result
@@ -55,6 +60,28 @@ abstract class Migrator(
 
         return result
     }
+
+    /**
+     * Runs all given migrations that have no [Migration.toVersion], and
+     * [Migration.shouldMigrate] returns true. This will throw [IllegalArgumentException]
+     * if any of the migrations provided have a non-null [Migration.toVersion].
+     * @param fromVersion The version to migrate from.
+     * @param migrations The [List] of [Migration]s that don't have [Migration.toVersion]
+     * set.
+     */
+    suspend fun runConstantMigrations(
+        fromVersion: Int,
+        migrations: List<Migration>
+    ) {
+        // Throw an exception if any of the given migrations have a non-null toVersion
+        require(migrations.all { it.toVersion == null })
+
+        // Run all migrations where shouldMigrate returns true
+        migrations.filter { it.shouldMigrate(fromVersion) }.forEach { migration ->
+            migration.migrate()
+        }
+    }
+
 
     /**
      * A recursive function to build a list of [Migration]s to be run in a sequential order. Note
@@ -74,8 +101,11 @@ abstract class Migrator(
             it.shouldMigrate(fromVersion)
         }
 
-        // Determine next migration and add to migration map
-        val migration = migrationsFromOldVersion.maxByOrNull { it.toVersion }
+        // Determine next migration and add to migration map.
+        // Note migrations with no toVersion will be ignored
+        val migration = migrationsFromOldVersion
+            .filter { it.toVersion != null }
+            .maxByOrNull { it.toVersion!! }
         if (migration == null && fromVersion == currentVersion) {
             // If no migrations were found, and there was no version change, return our migrations
             return migrationMap
@@ -85,9 +115,9 @@ abstract class Migrator(
         migrationMap.add(migration)
 
         // If needed, continue building migration map
-        if (migration.toVersion < currentVersion) {
+        if (migration.toVersion!! < currentVersion) {
             migrationMap.addAll(
-                buildMigrationMap(remainingMigrations, migration.toVersion)
+                buildMigrationMap(remainingMigrations, migration.toVersion!!)
             )
         }
 
