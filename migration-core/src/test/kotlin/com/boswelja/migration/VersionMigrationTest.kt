@@ -12,9 +12,7 @@ class VersionMigrationTest {
     fun `shouldMigrate returns true if the migration can be applied`() {
         val fromVersion = 1
         val toVersion = 2
-        val migration = object : VersionMigration(fromVersion, toVersion) {
-            override suspend fun migrate(): Boolean = true
-        }
+        val migration = versionMigration(fromVersion, toVersion) { true }
 
         val shouldMigrate = runBlocking { migration.shouldMigrate(fromVersion) }
         expectThat(shouldMigrate).isTrue()
@@ -24,9 +22,7 @@ class VersionMigrationTest {
     fun `shouldMigrate returns false if the migration cannot be applied`() {
         val fromVersion = 1
         val toVersion = 2
-        val migration = object : VersionMigration(fromVersion, toVersion) {
-            override suspend fun migrate(): Boolean = true
-        }
+        val migration = versionMigration(fromVersion, toVersion) { true }
 
         val shouldMigrate = runBlocking { migration.shouldMigrate(toVersion) }
         expectThat(shouldMigrate).isFalse()
