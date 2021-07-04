@@ -1,5 +1,7 @@
 package com.boswelja.migration
 
+import io.mockk.spyk
+
 class ConcreteVersionMigration(
     fromVersion: Int,
     toVersion: Int,
@@ -22,7 +24,7 @@ fun createVersionedMigrations(
     toVersion: Int,
     migrateResult: (fromVersion: Int) -> Boolean
 ) = (fromVersion..toVersion).map { fromVer ->
-    ConcreteVersionMigration(fromVer, fromVer + 1, migrateResult)
+    spyk(ConcreteVersionMigration(fromVer, fromVer + 1, migrateResult))
 }
 
 fun createConstantMigrations(
@@ -30,8 +32,10 @@ fun createConstantMigrations(
     shouldMigrate: (index: Int) -> Boolean,
     migrateResult: (index: Int) -> Boolean
 ) = (0 until count).map { index ->
-    ConcreteConstatntMigration(
-        shouldMigrate,
-        { migrateResult(index) }
+    spyk(
+        ConcreteConstatntMigration(
+            shouldMigrate,
+            { migrateResult(index) }
+        )
     )
 }
