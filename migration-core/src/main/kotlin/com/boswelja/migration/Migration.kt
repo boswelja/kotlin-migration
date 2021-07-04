@@ -41,8 +41,57 @@ abstract class VersionMigration(
 }
 
 /**
+ * A concrete representation of [VersionMigration] that accepts lambdas in place of overriding
+ * functions in a custom class.
+ */
+internal class SimpleVersionMigration(
+    fromVersion: Int,
+    toVersion: Int,
+    private val onMigrate: suspend () -> Boolean
+) : VersionMigration(fromVersion, toVersion) {
+    override suspend fun migrate(): Boolean = onMigrate()
+}
+
+/**
+ * Create a [VersionMigration] with the given parameters.
+ * @param fromVersion The version this migration can migrate from.
+ * @param toVersion The version this migration will migrate to.
+ * @param onMigrate A lambda function to be executed when this migration is applied. See
+ * [VersionMigration.migrate].
+ */
+fun versionMigration(
+    fromVersion: Int,
+    toVersion: Int,
+    onMigrate: suspend () -> Boolean
+) = SimpleVersionMigration(fromVersion, toVersion, onMigrate) as VersionMigration
+
+/**
  * Defines a migration that should be run if some condition is met.
  */
 abstract class ConditionalMigration : Migration {
     override val toVersion: Int? = null
 }
+
+/**
+ * A concrete representation of [ConditionalMigration] that accepts lambdas in place of overriding
+ * functions in a custom class.
+ */
+internal class SimpleConditionalMigration(
+    private val onShouldMigrate: suspend (fromVersion: Int) -> Boolean,
+    private val onMigrate: suspend () -> Boolean
+) : ConditionalMigration() {
+    override suspend fun shouldMigrate(fromVersion: Int): Boolean = onShouldMigrate(fromVersion)
+    override suspend fun migrate(): Boolean = onMigrate()
+}
+
+/**
+ * Create a [ConditionalMigration] with the given parameters.
+ * @param onShouldMigrate A lambda function that will be called to check whether this migration
+ * should be executed. See [ConditionalMigration.shouldMigrate]
+ * @param onMigrate A lambda function to be executed when this migration is applied. See
+ * [ConditionalMigration.migrate].
+ */
+fun conditionalMigration(
+    onShouldMigrate: suspend (fromVersion: Int) -> Boolean,
+    onMigrate: suspend () -> Boolean
+) = SimpleConditionalMigration(onShouldMigrate, onMigrate) as ConditionalMigration
