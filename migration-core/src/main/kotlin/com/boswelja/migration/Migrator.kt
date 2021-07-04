@@ -70,7 +70,7 @@ abstract class Migrator(
                 result = Result.FAILED
                 // If abort on error is true, return result now
                 if (abortOnError) {
-                    return@forEach
+                    return result
                 }
             }
         }
@@ -111,27 +111,10 @@ abstract class Migrator(
             version = migration.toVersion!!
         }
 
-        onMigratedTo(version)
+        if (result != Result.NOT_NEEDED) {
+            onMigratedTo(version)
+        }
 
         return result
-    }
-
-    /**
-     * Combine a number of [Result]s into a single [Result].
-     * @param results The [Result]s to combine.
-     * @return the combined result.
-     */
-    internal fun combineResults(vararg results: Result): Result {
-        return when {
-            results.all { it == Result.SUCCESS } -> {
-                Result.SUCCESS
-            }
-            results.all { it == Result.NOT_NEEDED } -> {
-                Result.NOT_NEEDED
-            }
-            else -> {
-                Result.FAILED
-            }
-        }
     }
 }
