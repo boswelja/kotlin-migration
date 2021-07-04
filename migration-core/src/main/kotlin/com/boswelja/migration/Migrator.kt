@@ -36,27 +36,8 @@ abstract class Migrator(
         // Handle constant migrations
         runConstantMigrations(oldVersion, constantMigrations)
 
-        // Build migration map
-        val migrationMap = buildMigrationMap(versionMigrations, oldVersion)
-
-        var result = Result.NOT_NEEDED
-        var version = oldVersion
-        migrationMap.forEach { migration ->
-            migration.migrate().let { migrationResult ->
-                // Only update the result if it's not already failed
-                if (result != Result.FAILED) {
-                    result = migrationResult
-                }
-            }
-            if (result == Result.SUCCESS) {
-                migration.toVersion?.let { version = it }
-            } else if (result == Result.FAILED && abortOnError) {
-                onMigratedTo(version)
-                return result
-            }
-        }
-
-        onMigratedTo(version)
+        // Handle versioned migrations
+        val result = runVersionedMigrations(oldVersion, versionMigrations)
 
         return result
     }
@@ -82,44 +63,41 @@ abstract class Migrator(
         }
     }
 
-    /**
-     * A recursive function to build a list of [Migration]s to be run in a sequential order. Note
-     * this will throw [IllegalArgumentException] if a migration cannot be found from a version.
-     * @param migrations A [List] of available [Migration]s.
-     * @param fromVersion The version to build a migration map from.
-     * @return A [List] of ordered [Migration]s that can be run to reach [currentVersion].
-     */
-    suspend fun buildMigrationMap(
-        migrations: List<Migration>,
-        fromVersion: Int
-    ): List<Migration> {
-        val migrationMap = mutableListOf<Migration>()
+    suspend fun runVersionedMigrations(
+        fromVersion: Int,
+        migrations: List<Migration>
+    ): Result {
+        // Throw an exception if any of the given migrations have no toVersion set
+        require(migrations.all { it.toVersion != null })
 
-        // Get next available migrations, and all remaining migrations
-        val (migrationsFromOldVersion, remainingMigrations) = migrations.separate {
-            it.shouldMigrate(fromVersion)
+        var version = fromVersion
+        var result = Result.NOT_NEEDED
+        while (version < currentVersion) {
+            // Get the next migration
+            val migration = migrations
+                .filter { it.shouldMigrate(version) }
+                .maxByOrNull { it.toVersion!! }
+            checkNotNull(migration) { "Couldn't find a migration from version $version" }
+
+            val migrateResult = migration.migrate()
+            if (migrateResult) {
+                // Don't update result if it's in a failed state
+                if (result != Result.FAILED) {
+                    result = Result.SUCCESS
+                }
+            } else {
+                result = Result.FAILED
+                // If abort on error is true, return result now
+                if (abortOnError) {
+                    break
+                }
+            }
+            // Update version and continue
+            version = migration.toVersion!!
         }
 
-        // Determine next migration and add to migration map.
-        // Note migrations with no toVersion will be ignored
-        val migration = migrationsFromOldVersion
-            .filter { it.toVersion != null }
-            .maxByOrNull { it.toVersion!! }
-        if (migration == null && fromVersion == currentVersion) {
-            // If no migrations were found, and there was no version change, return our migrations
-            return migrationMap
-        }
-        checkNotNull(migration) { "Couldn't find a migration from version $fromVersion" }
+        onMigratedTo(version)
 
-        migrationMap.add(migration)
-
-        // If needed, continue building migration map
-        if (migration.toVersion!! < currentVersion) {
-            migrationMap.addAll(
-                buildMigrationMap(remainingMigrations, migration.toVersion!!)
-            )
-        }
-
-        return migrationMap
+        return result
     }
 }
