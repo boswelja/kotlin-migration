@@ -82,7 +82,6 @@ abstract class Migrator(
         }
     }
 
-
     /**
      * A recursive function to build a list of [Migration]s to be run in a sequential order. Note
      * this will throw [IllegalArgumentException] if a migration cannot be found from a version.

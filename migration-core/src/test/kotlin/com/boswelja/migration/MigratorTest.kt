@@ -118,7 +118,7 @@ class MigratorTest {
                 }
             ),
             spyk(
-                object : ConditionalMigration(4) {
+                object : ConditionalMigration() {
                     override suspend fun migrate(): Result = Result.SUCCESS
                     override suspend fun shouldMigrate(fromVersion: Int): Boolean = true
                 }
