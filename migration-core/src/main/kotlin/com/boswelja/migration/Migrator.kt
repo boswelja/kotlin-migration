@@ -63,7 +63,7 @@ abstract class Migrator(
      * @param fromVersion The version to build a migration map from.
      * @return A [List] of ordered [Migration]s that can be run to reach [currentVersion].
      */
-    internal suspend fun buildMigrationMap(
+    suspend fun buildMigrationMap(
         migrations: List<Migration>,
         fromVersion: Int
     ): List<Migration> {

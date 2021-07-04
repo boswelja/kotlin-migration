@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit
 @State(Scope.Benchmark)
 class MigratorBenchmark {
     final val fromVersion = 1
-    final val toVersion = 10
+    final val toVersion = 100
     // Create some basic migrations that do nothing
     private val migrations = (fromVersion..toVersion).map { fromVer ->
         object : VersionMigration(fromVer, fromVer + 1) {
@@ -48,5 +48,13 @@ class MigratorBenchmark {
     @Benchmark
     fun migrateBenchmark(): Unit = runBlocking {
         migrator.migrate()
+    }
+
+    @Benchmark
+    fun buildMigrationMapBenchmark(): Unit = runBlocking {
+        migrator.buildMigrationMap(
+            migrations,
+            fromVersion
+        )
     }
 }
