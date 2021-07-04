@@ -6,15 +6,16 @@ package com.boswelja.migration
 interface Migration {
 
     /**
-     * The version the system will be at after applying the migration.
+     * The version the system will be at after applying the migration, or null if the
+     * version shouldn't change.
      */
-    val toVersion: Int
+    val toVersion: Int?
 
     /**
      * Performs migration logic.
-     * @return See [Result].
+     * @return true if migration was successful, false otherwise.
      */
-    suspend fun migrate(): Result
+    suspend fun migrate(): Boolean
 
     /**
      * Whether this migration should be run.
@@ -41,8 +42,7 @@ abstract class VersionMigration(
 
 /**
  * Defines a migration that should be run if some condition is met.
- * @param toVersion The version to migrate to.
  */
-abstract class ConditionalMigration(
-    final override val toVersion: Int
-) : Migration
+abstract class ConditionalMigration : Migration {
+    override val toVersion: Int? = null
+}

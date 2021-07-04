@@ -23,9 +23,15 @@ class MigratorBenchmark {
     final val fromVersion = 1
     final val toVersion = 100
     // Create some basic migrations that do nothing
-    private val migrations = (fromVersion..toVersion).map { fromVer ->
+    private val versionedMigrations = (fromVersion..toVersion).map { fromVer ->
         object : VersionMigration(fromVer, fromVer + 1) {
-            override suspend fun migrate(): Result = Result.SUCCESS
+            override suspend fun migrate(): Boolean = true
+        }
+    }
+    private val constantMigrations = (fromVersion..toVersion).map {
+        object : ConditionalMigration() {
+            override suspend fun shouldMigrate(fromVersion: Int): Boolean = true
+            override suspend fun migrate(): Boolean = true
         }
     }
 
@@ -35,7 +41,7 @@ class MigratorBenchmark {
     fun setUp() {
         migrator = object : Migrator(
             currentVersion = toVersion,
-            migrations = migrations
+            migrations = versionedMigrations + constantMigrations
         ) {
             override suspend fun onMigratedTo(version: Int) {
                 // Do nothing
@@ -51,10 +57,18 @@ class MigratorBenchmark {
     }
 
     @Benchmark
-    fun buildMigrationMapBenchmark(): Unit = runBlocking {
-        migrator.buildMigrationMap(
-            migrations,
-            fromVersion
+    fun runVersionedMigrationsBenchmark(): Unit = runBlocking {
+        migrator.runVersionedMigrations(
+            fromVersion,
+            versionedMigrations
+        )
+    }
+
+    @Benchmark
+    fun runConstantMigrationsBenchmark(): Unit = runBlocking {
+        migrator.runConstantMigrations(
+            fromVersion,
+            constantMigrations
         )
     }
 }

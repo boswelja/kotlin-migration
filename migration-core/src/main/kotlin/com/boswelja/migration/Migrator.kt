@@ -31,66 +31,90 @@ abstract class Migrator(
         // Check old version isn't greater than current version
         check(oldVersion <= currentVersion)
 
-        // Build migration map
-        val migrationMap = buildMigrationMap(migrations, oldVersion)
+        val (versionMigrations, constantMigrations) = migrations.separate { it.toVersion != null }
 
+        // Handle constant migrations
+        val constantsResult = runConstantMigrations(oldVersion, constantMigrations)
+
+        // Handle versioned migrations
+        val versionedResult = runVersionedMigrations(oldVersion, versionMigrations)
+
+        return combineResults(constantsResult, versionedResult)
+    }
+
+    /**
+     * Runs all given migrations that have no [Migration.toVersion], and
+     * [Migration.shouldMigrate] returns true. This will throw [IllegalArgumentException]
+     * if any of the migrations provided have a non-null [Migration.toVersion].
+     * @param fromVersion The version to migrate from.
+     * @param migrations The [List] of [Migration]s that don't have [Migration.toVersion]
+     * set.
+     */
+    suspend fun runConstantMigrations(
+        fromVersion: Int,
+        migrations: List<Migration>
+    ): Result {
+        // Throw an exception if any of the given migrations have a non-null toVersion
+        require(migrations.all { it.toVersion == null })
+
+        // Run all migrations where shouldMigrate returns true
         var result = Result.NOT_NEEDED
-        var version = oldVersion
-        migrationMap.forEach { migration ->
-            migration.migrate().let { migrationResult ->
-                // Only update the result if it's not already failed
+        migrations.filter { it.shouldMigrate(fromVersion) }.forEach { migration ->
+            val migrationResult = migration.migrate()
+            if (migrationResult) {
+                // Don't update result if it's in a failed state
                 if (result != Result.FAILED) {
-                    result = migrationResult
+                    result = Result.SUCCESS
+                }
+            } else {
+                result = Result.FAILED
+                // If abort on error is true, return result now
+                if (abortOnError) {
+                    return result
                 }
             }
-            if (result == Result.SUCCESS) {
-                version = migration.toVersion
-            } else if (result == Result.FAILED && abortOnError) {
-                onMigratedTo(version)
-                return result
-            }
         }
-
-        onMigratedTo(version)
 
         return result
     }
 
-    /**
-     * A recursive function to build a list of [Migration]s to be run in a sequential order. Note
-     * this will throw [IllegalArgumentException] if a migration cannot be found from a version.
-     * @param migrations A [List] of available [Migration]s.
-     * @param fromVersion The version to build a migration map from.
-     * @return A [List] of ordered [Migration]s that can be run to reach [currentVersion].
-     */
-    suspend fun buildMigrationMap(
-        migrations: List<Migration>,
-        fromVersion: Int
-    ): List<Migration> {
-        val migrationMap = mutableListOf<Migration>()
+    suspend fun runVersionedMigrations(
+        fromVersion: Int,
+        migrations: List<Migration>
+    ): Result {
+        // Throw an exception if any of the given migrations have no toVersion set
+        require(migrations.all { it.toVersion != null })
 
-        // Get next available migrations, and all remaining migrations
-        val (migrationsFromOldVersion, remainingMigrations) = migrations.separate {
-            it.shouldMigrate(fromVersion)
+        var version = fromVersion
+        var result = Result.NOT_NEEDED
+        while (version < currentVersion) {
+            // Get the next migration
+            val migration = migrations
+                .filter { it.shouldMigrate(version) }
+                .maxByOrNull { it.toVersion!! }
+            checkNotNull(migration) { "Couldn't find a migration from version $version" }
+
+            val migrateResult = migration.migrate()
+            if (migrateResult) {
+                // Don't update result if it's in a failed state
+                if (result != Result.FAILED) {
+                    result = Result.SUCCESS
+                }
+            } else {
+                result = Result.FAILED
+                // If abort on error is true, return result now
+                if (abortOnError) {
+                    break
+                }
+            }
+            // Update version and continue
+            version = migration.toVersion!!
         }
 
-        // Determine next migration and add to migration map
-        val migration = migrationsFromOldVersion.maxByOrNull { it.toVersion }
-        if (migration == null && fromVersion == currentVersion) {
-            // If no migrations were found, and there was no version change, return our migrations
-            return migrationMap
-        }
-        checkNotNull(migration) { "Couldn't find a migration from version $fromVersion" }
-
-        migrationMap.add(migration)
-
-        // If needed, continue building migration map
-        if (migration.toVersion < currentVersion) {
-            migrationMap.addAll(
-                buildMigrationMap(remainingMigrations, migration.toVersion)
-            )
+        if (result != Result.NOT_NEEDED) {
+            onMigratedTo(version)
         }
 
-        return migrationMap
+        return result
     }
 }
