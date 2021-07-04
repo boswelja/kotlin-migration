@@ -13,9 +13,9 @@ interface Migration {
 
     /**
      * Performs migration logic.
-     * @return See [Result].
+     * @return true if migration was successful, false otherwise.
      */
-    suspend fun migrate(): Result
+    suspend fun migrate(): Boolean
 
     /**
      * Whether this migration should be run.

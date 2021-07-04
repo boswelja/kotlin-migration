@@ -13,7 +13,7 @@ class VersionMigrationTest {
         val fromVersion = 1
         val toVersion = 2
         val migration = object : VersionMigration(fromVersion, toVersion) {
-            override suspend fun migrate(): Result = Result.SUCCESS
+            override suspend fun migrate(): Boolean = true
         }
 
         val shouldMigrate = runBlocking { migration.shouldMigrate(fromVersion) }
@@ -25,7 +25,7 @@ class VersionMigrationTest {
         val fromVersion = 1
         val toVersion = 2
         val migration = object : VersionMigration(fromVersion, toVersion) {
-            override suspend fun migrate(): Result = Result.SUCCESS
+            override suspend fun migrate(): Boolean = true
         }
 
         val shouldMigrate = runBlocking { migration.shouldMigrate(toVersion) }

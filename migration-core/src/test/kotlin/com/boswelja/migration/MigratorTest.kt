@@ -15,9 +15,7 @@ class MigratorTest {
     fun `migrate() succeeds with one migration`() {
         // Set up dummy migrations
         val migration = object : VersionMigration(1, 2) {
-            override suspend fun migrate(): Result {
-                return Result.SUCCESS
-            }
+            override suspend fun migrate(): Boolean = true
         }
         val migrator = ConcreteMigrator(
             oldVersion = 1,
@@ -34,9 +32,7 @@ class MigratorTest {
     fun `migrate() fails when migration fails`() {
         // Set up dummy migrations
         val migration = object : VersionMigration(1, 2) {
-            override suspend fun migrate(): Result {
-                return Result.FAILED
-            }
+            override suspend fun migrate(): Boolean = false
         }
         val migrator = ConcreteMigrator(
             oldVersion = 1,
@@ -55,17 +51,17 @@ class MigratorTest {
         val orderedMigrations = listOf(
             spyk(
                 object : VersionMigration(1, 2) {
-                    override suspend fun migrate(): Result = Result.SUCCESS
+                    override suspend fun migrate(): Boolean = true
                 }
             ),
             spyk(
                 object : VersionMigration(2, 3) {
-                    override suspend fun migrate(): Result = Result.SUCCESS
+                    override suspend fun migrate(): Boolean = true
                 }
             ),
             spyk(
                 object : VersionMigration(3, 4) {
-                    override suspend fun migrate(): Result = Result.SUCCESS
+                    override suspend fun migrate(): Boolean = true
                 }
             )
         )
@@ -109,17 +105,17 @@ class MigratorTest {
         val migrations = listOf(
             spyk(
                 object : VersionMigration(1, 2) {
-                    override suspend fun migrate(): Result = Result.SUCCESS
+                    override suspend fun migrate(): Boolean = true
                 }
             ),
             spyk(
                 object : VersionMigration(2, 3) {
-                    override suspend fun migrate(): Result = Result.SUCCESS
+                    override suspend fun migrate(): Boolean = true
                 }
             ),
             spyk(
                 object : ConditionalMigration() {
-                    override suspend fun migrate(): Result = Result.SUCCESS
+                    override suspend fun migrate(): Boolean = true
                     override suspend fun shouldMigrate(fromVersion: Int): Boolean = true
                 }
             )
@@ -149,12 +145,12 @@ class MigratorTest {
         val migrations = listOf(
             spyk(
                 object : VersionMigration(1, 2) {
-                    override suspend fun migrate(): Result = Result.FAILED
+                    override suspend fun migrate(): Boolean = false
                 }
             ),
             spyk(
                 object : VersionMigration(2, 3) {
-                    override suspend fun migrate(): Result = Result.SUCCESS
+                    override suspend fun migrate(): Boolean = true
                 }
             )
         )
@@ -175,12 +171,12 @@ class MigratorTest {
         val migrations = listOf(
             spyk(
                 object : VersionMigration(1, 2) {
-                    override suspend fun migrate(): Result = Result.FAILED
+                    override suspend fun migrate(): Boolean = false
                 }
             ),
             spyk(
                 object : VersionMigration(2, 3) {
-                    override suspend fun migrate(): Result = Result.SUCCESS
+                    override suspend fun migrate(): Boolean = true
                 }
             )
         )
@@ -201,12 +197,12 @@ class MigratorTest {
         val migrations = listOf(
             spyk(
                 object : VersionMigration(1, 2) {
-                    override suspend fun migrate(): Result = Result.FAILED
+                    override suspend fun migrate(): Boolean = false
                 }
             ),
             spyk(
                 object : VersionMigration(2, 3) {
-                    override suspend fun migrate(): Result = Result.SUCCESS
+                    override suspend fun migrate(): Boolean = true
                 }
             )
         )
@@ -226,10 +222,10 @@ class MigratorTest {
     fun `migrate() returns failed on error`() {
         val migrations = listOf(
             object : VersionMigration(1, 2) {
-                override suspend fun migrate(): Result = Result.FAILED
+                override suspend fun migrate(): Boolean = false
             },
             object : VersionMigration(2, 3) {
-                override suspend fun migrate(): Result = Result.SUCCESS
+                override suspend fun migrate(): Boolean = true
             }
         )
         val migrator = ConcreteMigrator(
@@ -247,10 +243,10 @@ class MigratorTest {
     fun `migrate() returns success on success`() {
         val migrations = listOf(
             object : VersionMigration(1, 2) {
-                override suspend fun migrate(): Result = Result.SUCCESS
+                override suspend fun migrate(): Boolean = true
             },
             object : VersionMigration(2, 3) {
-                override suspend fun migrate(): Result = Result.SUCCESS
+                override suspend fun migrate(): Boolean = true
             }
         )
         val migrator = ConcreteMigrator(
@@ -294,10 +290,10 @@ class MigratorTest {
     fun `onMigrateTo() is called after successful migration`() {
         val migrations = listOf(
             object : VersionMigration(1, 2) {
-                override suspend fun migrate(): Result = Result.SUCCESS
+                override suspend fun migrate(): Boolean = true
             },
             object : VersionMigration(2, 3) {
-                override suspend fun migrate(): Result = Result.SUCCESS
+                override suspend fun migrate(): Boolean = true
             }
         )
         val migrator = ConcreteMigrator(
@@ -315,10 +311,10 @@ class MigratorTest {
     fun `onMigrateTo() is called after failed migration`() {
         val migrations = listOf(
             object : VersionMigration(1, 2) {
-                override suspend fun migrate(): Result = Result.SUCCESS
+                override suspend fun migrate(): Boolean = true
             },
             object : VersionMigration(2, 3) {
-                override suspend fun migrate(): Result = Result.FAILED
+                override suspend fun migrate(): Boolean = false
             }
         )
         val migrator = ConcreteMigrator(
