@@ -28,6 +28,12 @@ class MigratorBenchmark {
             override suspend fun migrate(): Boolean = true
         }
     }
+    private val constantMigrations = (fromVersion..toVersion).map {
+        object : ConditionalMigration() {
+            override suspend fun shouldMigrate(fromVersion: Int): Boolean = true
+            override suspend fun migrate(): Boolean = true
+        }
+    }
 
     private lateinit var migrator: Migrator
 
@@ -35,7 +41,7 @@ class MigratorBenchmark {
     fun setUp() {
         migrator = object : Migrator(
             currentVersion = toVersion,
-            migrations = versionedMigrations
+            migrations = versionedMigrations + constantMigrations
         ) {
             override suspend fun onMigratedTo(version: Int) {
                 // Do nothing
@@ -55,6 +61,14 @@ class MigratorBenchmark {
         migrator.runVersionedMigrations(
             fromVersion,
             versionedMigrations
+        )
+    }
+
+    @Benchmark
+    fun runConstantMigrationsBenchmark(): Unit = runBlocking {
+        migrator.runConstantMigrations(
+            fromVersion,
+            constantMigrations
         )
     }
 }
