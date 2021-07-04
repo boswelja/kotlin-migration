@@ -1,4 +1,4 @@
-# android-migration
+# kotlin-migration
 A Kotlin library to enable easier program migrations, inspired by AndroidX Room
 
 ## Usage
@@ -18,7 +18,9 @@ The basis of this library is a `Migrator`, that will run any `Migration` you giv
 ```kotlin
 class MigrationManager : Migrator(
   currentVersion = 1,
-  migrations = listOf()
+  migrations = listOf(
+    // Your migrations here
+  )
 ) {
   override suspend fun getOldVersion(): Int {
     // You should fetch your previous version here
@@ -55,9 +57,9 @@ val migration1_2 = object : VersionMigration(fromVersion = 1, toVersion = 2) {
 #### `ConditionalMigration`
 
 ```kotlin
-val migration1_2 = object : ConditionalMigration(toVersion = 2) {
+val migration1_2 = object : ConditionalMigration() {
   override suspend fun shouldMigrate(fromVersion: Int): Boolean {
-    // CHeck whether this migration should be run on a specific version
+    // Check whether this migration should be run, optionally taking a version into account
     var shouldMigrate = ...
     return shouldMigrate
   }
