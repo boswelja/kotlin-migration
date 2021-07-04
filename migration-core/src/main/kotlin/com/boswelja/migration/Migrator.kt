@@ -122,13 +122,16 @@ abstract class Migrator(
      * @return the combined result.
      */
     internal fun combineResults(vararg results: Result): Result {
-        val result = if (results.all { it == Result.SUCCESS }) {
-            Result.SUCCESS
-        } else if (results.all { it == Result.NOT_NEEDED }) {
-            Result.NOT_NEEDED
-        } else {
-            Result.FAILED
+        return when {
+            results.all { it == Result.SUCCESS } -> {
+                Result.SUCCESS
+            }
+            results.all { it == Result.NOT_NEEDED } -> {
+                Result.NOT_NEEDED
+            }
+            else -> {
+                Result.FAILED
+            }
         }
-        return result
     }
 }
