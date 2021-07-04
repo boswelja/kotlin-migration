@@ -53,14 +53,29 @@ abstract class Migrator(
     suspend fun runConstantMigrations(
         fromVersion: Int,
         migrations: List<Migration>
-    ) {
+    ): Result {
         // Throw an exception if any of the given migrations have a non-null toVersion
         require(migrations.all { it.toVersion == null })
 
         // Run all migrations where shouldMigrate returns true
+        var result = Result.NOT_NEEDED
         migrations.filter { it.shouldMigrate(fromVersion) }.forEach { migration ->
-            migration.migrate()
+            val migrationResult = migration.migrate()
+            if (migrationResult) {
+                // Don't update result if it's in a failed state
+                if (result != Result.FAILED) {
+                    result = Result.SUCCESS
+                }
+            } else {
+                result = Result.FAILED
+                // If abort on error is true, return result now
+                if (abortOnError) {
+                    return@forEach
+                }
+            }
         }
+
+        return result
     }
 
     suspend fun runVersionedMigrations(
