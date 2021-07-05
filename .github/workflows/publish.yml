@@ -26,7 +26,7 @@ jobs:
           distribution: 'adopt'
 
       - name: Git Version
-        uses: codacy/git-version@2.5.2
+        uses: codacy/git-version@2.5.3
         id: version
         with:
           release-branch: main
