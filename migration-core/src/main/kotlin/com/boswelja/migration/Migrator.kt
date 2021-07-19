@@ -31,7 +31,7 @@ abstract class Migrator(
         // Check old version isn't greater than current version
         check(oldVersion <= currentVersion)
 
-        val (versionMigrations, constantMigrations) = migrations.separate { it.toVersion != null }
+        val (versionMigrations, constantMigrations) = migrations.partition { it.toVersion != null }
 
         // Handle constant migrations
         val constantsResult = runConstantMigrations(oldVersion, constantMigrations)
