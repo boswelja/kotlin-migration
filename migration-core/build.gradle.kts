@@ -13,12 +13,14 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(libs.strikt.core)
-                implementation(libs.mockk.core)
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
             }
         }
-        val jvmTest by getting
+        val jvmTest by getting {
+            dependencies {
+                implementation(kotlin("test-junit5"))
+            }
+        }
     }
 }
