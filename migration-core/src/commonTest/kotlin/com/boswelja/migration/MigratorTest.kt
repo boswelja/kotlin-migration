@@ -1,11 +1,8 @@
 package com.boswelja.migration
 
 import kotlin.test.Test
-import kotlinx.coroutines.runBlocking
-import strikt.api.expectThat
-import strikt.api.expectThrows
-import strikt.assertions.isEqualTo
-import strikt.assertions.isNull
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class MigratorTest {
 
@@ -21,9 +18,7 @@ class MigratorTest {
         )
 
         // Check with empty migration list
-        expectThat(
-            migrator.runConstantMigrations(1, emptyList())
-        ).isEqualTo(Result.NOT_NEEDED)
+        assertEquals(migrator.runConstantMigrations(1, emptyList()), Result.NOT_NEEDED)
 
         // Check with migrations whose shouldMigrate returns false
         val migrations = createConstantMigrations(
@@ -31,9 +26,7 @@ class MigratorTest {
             shouldMigrate = { false },
             migrateResult = { false }
         )
-        expectThat(
-            migrator.runConstantMigrations(1, migrations)
-        ).isEqualTo(Result.NOT_NEEDED)
+        assertEquals(migrator.runConstantMigrations(1, migrations), Result.NOT_NEEDED)
     }
 
     @Test
@@ -61,7 +54,7 @@ class MigratorTest {
         migrator.runConstantMigrations(1, migrations)
 
         // Verify only one migration was called
-        expectThat(migrationExecutionCount).isEqualTo(1)
+        assertEquals(migrationExecutionCount, 1)
     }
 
     @Test
@@ -83,7 +76,7 @@ class MigratorTest {
             emptyList()
         ).also { migrator ->
             // Check result
-            expectThat(migrator.runConstantMigrations(1, migrations)).isEqualTo(Result.FAILED)
+            assertEquals(migrator.runConstantMigrations(1, migrations), Result.FAILED)
         }
 
         // Check with abortOnError = false
@@ -94,7 +87,7 @@ class MigratorTest {
             emptyList()
         ).also { migrator ->
             // Check result
-            expectThat(migrator.runConstantMigrations(1, migrations)).isEqualTo(Result.FAILED)
+            assertEquals(migrator.runConstantMigrations(1, migrations), Result.FAILED)
         }
     }
 
@@ -115,7 +108,7 @@ class MigratorTest {
             emptyList()
         ).also { migrator ->
             // Check result
-            expectThrows<IllegalArgumentException> {
+            assertFailsWith<IllegalArgumentException> {
                 migrator.runConstantMigrations(1, migrations)
             }
         }
@@ -140,7 +133,7 @@ class MigratorTest {
             emptyList()
         ).also { migrator ->
             // Check result
-            expectThat(migrator.runConstantMigrations(1, migrations)).isEqualTo(Result.SUCCESS)
+            assertEquals(migrator.runConstantMigrations(1, migrations), Result.SUCCESS)
         }
     }
 
@@ -157,9 +150,7 @@ class MigratorTest {
         )
 
         // Check with empty migration list
-        expectThat(
-            migrator.runVersionedMigrations(toVersion, emptyList())
-        ).isEqualTo(Result.NOT_NEEDED)
+        assertEquals(migrator.runVersionedMigrations(toVersion, emptyList()), Result.NOT_NEEDED)
 
         // Check with migrations that won't change the version
         val migrations = createVersionedMigrations(
@@ -167,9 +158,7 @@ class MigratorTest {
             toVersion,
             migrateResult = { true }
         )
-        expectThat(
-            migrator.runVersionedMigrations(toVersion, migrations)
-        ).isEqualTo(Result.NOT_NEEDED)
+        assertEquals(migrator.runVersionedMigrations(toVersion, migrations), Result.NOT_NEEDED)
     }
 
     @Test
@@ -198,7 +187,7 @@ class MigratorTest {
         migrator.runVersionedMigrations(1, migrations)
 
         // Verify only one migration was called
-        expectThat(migrationExecutionCount).isEqualTo(1)
+        assertEquals(migrationExecutionCount, 1)
     }
 
     @Test
@@ -221,7 +210,7 @@ class MigratorTest {
             emptyList()
         ).also { migrator ->
             // Check result
-            expectThat(migrator.runVersionedMigrations(1, migrations)).isEqualTo(Result.FAILED)
+            assertEquals(migrator.runVersionedMigrations(1, migrations), Result.FAILED)
         }
 
         // Check with abortOnError = false
@@ -232,7 +221,7 @@ class MigratorTest {
             emptyList()
         ).also { migrator ->
             // Check result
-            expectThat(migrator.runVersionedMigrations(1, migrations)).isEqualTo(Result.FAILED)
+            assertEquals(migrator.runVersionedMigrations(1, migrations), Result.FAILED)
         }
     }
 
@@ -254,7 +243,7 @@ class MigratorTest {
             emptyList()
         ).also { migrator ->
             // Check result
-            expectThrows<IllegalArgumentException> {
+            assertFailsWith<IllegalArgumentException> {
                 migrator.runVersionedMigrations(1, migrations)
             }
         }
@@ -280,9 +269,9 @@ class MigratorTest {
             emptyList()
         ).also { migrator ->
             // Check result
-            expectThat(
-                migrator.runVersionedMigrations(fromVersion, migrations)
-            ).isEqualTo(Result.SUCCESS)
+            assertEquals(
+                migrator.runVersionedMigrations(fromVersion, migrations), Result.SUCCESS
+            )
         }
     }
 
@@ -304,7 +293,7 @@ class MigratorTest {
 
         runBlocking { migrator.migrate() }
 
-        expectThat(migrator.migratedTo).isEqualTo(3)
+        assertEquals(migrator.migratedTo, 3)
     }
 
     @Test
@@ -325,7 +314,7 @@ class MigratorTest {
 
         runBlocking { migrator.migrate() }
 
-        expectThat(migrator.migratedTo).isEqualTo(fromVersion)
+        assertEquals(migrator.migratedTo, fromVersion)
     }
 
     @Test
@@ -346,18 +335,19 @@ class MigratorTest {
 
         runBlocking { migrator.migrate() }
 
-        expectThat(migrator.migratedTo).isNull()
+        assertEquals(migrator.migratedTo, null)
     }
 
     @Test
-    fun `migrate throws IllegalStateException if getOldVersion returns higher than currentVersion`() {
-        val migrator = ConcreteMigrator(
-            oldVersion = 2,
-            currentVersion = 1,
-            migrations = emptyList()
-        )
-        expectThrows<IllegalStateException> {
-            migrator.migrate()
+    fun `migrate throws IllegalStateException if getOldVersion is higher than currentVersion`(): Unit =
+        runBlocking {
+            val migrator = ConcreteMigrator(
+                oldVersion = 2,
+                currentVersion = 1,
+                migrations = emptyList()
+            )
+            assertFailsWith<IllegalStateException> {
+                migrator.migrate()
+            }
         }
-    }
 }

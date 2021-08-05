@@ -1,10 +1,7 @@
 package com.boswelja.migration
 
 import kotlin.test.Test
-import kotlinx.coroutines.runBlocking
-import strikt.api.expectThat
-import strikt.assertions.isFalse
-import strikt.assertions.isTrue
+import kotlin.test.assertTrue
 
 class VersionMigrationTest {
 
@@ -15,7 +12,7 @@ class VersionMigrationTest {
         val migration = versionMigration(fromVersion, toVersion) { true }
 
         val shouldMigrate = runBlocking { migration.shouldMigrate(fromVersion) }
-        expectThat(shouldMigrate).isTrue()
+        assertTrue(shouldMigrate)
     }
 
     @Test
@@ -25,6 +22,6 @@ class VersionMigrationTest {
         val migration = versionMigration(fromVersion, toVersion) { true }
 
         val shouldMigrate = runBlocking { migration.shouldMigrate(toVersion) }
-        expectThat(shouldMigrate).isFalse()
+        assertTrue(shouldMigrate)
     }
 }

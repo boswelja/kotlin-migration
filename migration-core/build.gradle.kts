@@ -4,7 +4,6 @@ plugins {
 
 kotlin {
     jvm()
-    js()
 
     sourceSets {
         val commonMain by getting {
@@ -14,10 +13,12 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.strikt.core)
                 implementation(libs.mockk.core)
+                implementation(kotlin("test-common"))
+                implementation(kotlin("test-annotations-common"))
             }
         }
+        val jvmTest by getting
     }
 }

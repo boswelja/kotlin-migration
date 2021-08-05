@@ -1,8 +1,7 @@
 package com.boswelja.migration
 
 import kotlin.test.Test
-import strikt.api.expectThat
-import strikt.assertions.isEqualTo
+import kotlin.test.assertEquals
 
 class ResultTest {
 
@@ -14,7 +13,7 @@ class ResultTest {
             Result.SUCCESS
         )
 
-        expectThat(combineResults(*results)).isEqualTo(Result.SUCCESS)
+        assertEquals(combineResults(*results), Result.SUCCESS)
     }
 
     @Test
@@ -25,7 +24,7 @@ class ResultTest {
             Result.SUCCESS
         )
 
-        expectThat(combineResults(*results)).isEqualTo(Result.FAILED)
+        assertEquals(combineResults(*results), Result.FAILED)
     }
 
     @Test
@@ -36,6 +35,6 @@ class ResultTest {
             Result.NOT_NEEDED
         )
 
-        expectThat(combineResults(*results)).isEqualTo(Result.NOT_NEEDED)
+        assertEquals(combineResults(*results), Result.NOT_NEEDED)
     }
 }
