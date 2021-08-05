@@ -56,18 +56,16 @@ ext["signing.secretKeyRingFile"] = Publishing.signingSecretKeyring
 signing {
     sign(publishing.publications)
 }
-afterEvaluate {
-    publishing {
-        publications {
-            create(
-                "release",
-                configureMavenPublication(
-                    project.name,
-                    "A Kotlin library to enable easier program migrations, inspired by AndroidX Room",
-                    "https://github.com/boswelja/android-migration",
-                ) { }
-            )
-        }
-        repositories(Publishing.repositories)
+publishing {
+    publications {
+        create(
+            "release",
+            configureMavenPublication(
+                project.name,
+                "A Kotlin library to enable easier program migrations, inspired by AndroidX Room",
+                "https://github.com/boswelja/android-migration",
+            ) { }
+        )
     }
+    repositories(Publishing.repositories)
 }
