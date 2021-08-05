@@ -21,6 +21,9 @@ plugins {
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 }
 
+group = Publishing.groupId
+version = Publishing.version ?: "0.1.0"
+
 nexusPublishing {
     repositories {
         sonatype {
