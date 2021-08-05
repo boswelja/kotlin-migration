@@ -7,7 +7,7 @@ import kotlin.test.assertFailsWith
 class MigratorTest {
 
     @Test
-    fun `runConstantMigrations does nothing with no migrations`(): Unit = runBlocking {
+    fun runConstantMigrationsDoesNothingWithNoMigrations(): Unit = runBlocking {
         val migrationCount = 10
         // Create a migrator for running tests
         val migrator = ConcreteMigrator(
@@ -30,7 +30,7 @@ class MigratorTest {
     }
 
     @Test
-    fun `runConstantMigrations aborts when abortOnError is true`(): Unit = runBlocking {
+    fun runConstantMigrationsAbortsWhenAbortOnErrorIsTrue(): Unit = runBlocking {
         val migrationCount = 10
 
         // Create a migrator for running tests
@@ -58,7 +58,7 @@ class MigratorTest {
     }
 
     @Test
-    fun `runConstantMigrations returns FAILED on error`(): Unit = runBlocking {
+    fun runConstantMigrationsReturnsFAILEDOnError(): Unit = runBlocking {
         val migrationCount = 10
 
         // Create migrations
@@ -92,7 +92,7 @@ class MigratorTest {
     }
 
     @Test
-    fun `runConstantMigrations throws exception if non-contant migrations are given`(): Unit = runBlocking {
+    fun runConstantMigrationsThrowsExceptionIfNonConstantMigrationsAreGiven(): Unit = runBlocking {
         // Create migrations
         val migrations = createVersionedMigrations(
             1,
@@ -115,7 +115,7 @@ class MigratorTest {
     }
 
     @Test
-    fun `runConstantMigrations returns SUCCESS on successful migrations`(): Unit = runBlocking {
+    fun runConstantMigrationsReturnsSUCCESSOnSuccessfulMigrations(): Unit = runBlocking {
         val migrationCount = 10
 
         // Create migrations
@@ -138,7 +138,7 @@ class MigratorTest {
     }
 
     @Test
-    fun `runVersionedMigrations does nothing with no migrations`(): Unit = runBlocking {
+    fun runVersionedMigrationsDoesNothingWithNoMigrations(): Unit = runBlocking {
         val fromVersion = 1
         val toVersion = 10
         // Create a migrator for running tests
@@ -162,7 +162,7 @@ class MigratorTest {
     }
 
     @Test
-    fun `runVersionedMigrations aborts when abortOnError is true`(): Unit = runBlocking {
+    fun runVersionedMigrationsAbortsWhenAbortOnErrorIsTrue(): Unit = runBlocking {
         val fromVersion = 1
         val toVersion = 10
 
@@ -191,7 +191,7 @@ class MigratorTest {
     }
 
     @Test
-    fun `runVersionedMigrations returns FAILED on error`(): Unit = runBlocking {
+    fun runVersionedMigrationsReturnsFAILEDOnError(): Unit = runBlocking {
         val fromVersion = 1
         val toVersion = 10
 
@@ -226,7 +226,7 @@ class MigratorTest {
     }
 
     @Test
-    fun `runVersionedMigrations throws exception if contant migrations are given`(): Unit = runBlocking {
+    fun runVersionedMigrationsThrowsExceptionIfConstantMigrationsAreGiven(): Unit = runBlocking {
         val migrationCount = 10
         // Create migrations
         val migrations = createConstantMigrations(
@@ -250,7 +250,7 @@ class MigratorTest {
     }
 
     @Test
-    fun `runVersionedMigrations returns SUCCESS on successful migrations`(): Unit = runBlocking {
+    fun runVersionedMigrationsReturnsSUCCESSOnSuccessfulMigrations(): Unit = runBlocking {
         val fromVersion = 1
         val toVersion = 10
 
@@ -276,7 +276,7 @@ class MigratorTest {
     }
 
     @Test
-    fun `onMigratedTo is called after successful migration`() {
+    fun onMigratedToIsCalledAfterSuccessfulMigration() {
         val fromVersion = 1
         val toVersion = 3
 
@@ -297,7 +297,7 @@ class MigratorTest {
     }
 
     @Test
-    fun `onMigratedTo is called after failed migration`() {
+    fun onMigratedToIsCalledAfterFailedMigration() {
         val fromVersion = 1
         val toVersion = 3
 
@@ -318,7 +318,7 @@ class MigratorTest {
     }
 
     @Test
-    fun `onMigratedTo is not called if no migrations were run`() {
+    fun onMigratedToIsNotCalledIfNoMigrationsWereRun() {
         val fromVersion = 1
         val toVersion = 3
 
@@ -339,7 +339,7 @@ class MigratorTest {
     }
 
     @Test
-    fun `migrate throws IllegalStateException if getOldVersion is higher than currentVersion`(): Unit =
+    fun migrateThrowsIllegalStateExceptionIfGetOldVersionIsHigherThanCurrentVersion(): Unit =
         runBlocking {
             val migrator = ConcreteMigrator(
                 oldVersion = 2,

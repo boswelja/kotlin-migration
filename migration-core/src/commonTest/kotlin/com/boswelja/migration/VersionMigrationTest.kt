@@ -6,7 +6,7 @@ import kotlin.test.assertTrue
 class VersionMigrationTest {
 
     @Test
-    fun `shouldMigrate returns true if the migration can be applied`() {
+    fun shouldMigrateReturnsTrueIfTheMigrationCanBeApplied() {
         val fromVersion = 1
         val toVersion = 2
         val migration = versionMigration(fromVersion, toVersion) { true }
@@ -16,7 +16,7 @@ class VersionMigrationTest {
     }
 
     @Test
-    fun `shouldMigrate returns false if the migration cannot be applied`() {
+    fun shouldMigrateReturnsFalseIfTheMigrationCannotBeApplied() {
         val fromVersion = 1
         val toVersion = 2
         val migration = versionMigration(fromVersion, toVersion) { true }

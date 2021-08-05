@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 class ResultTest {
 
     @Test
-    fun `combineResults returns SUCCESS if all passed are SUCCESS`() {
+    fun combineResultsReturnsSUCCESSIfAllPassedAreSUCCESS() {
         val results = arrayOf(
             Result.SUCCESS,
             Result.SUCCESS,
@@ -17,7 +17,7 @@ class ResultTest {
     }
 
     @Test
-    fun `combineResults returns FAILED if one passed is FAILED`() {
+    fun combineResultsReturnsFAILEDIfOnePassedIsFAILED() {
         val results = arrayOf(
             Result.SUCCESS,
             Result.FAILED,
@@ -28,7 +28,7 @@ class ResultTest {
     }
 
     @Test
-    fun `combineResults returns NOT_NEEDED if all passed are NOT_NEEDED`() {
+    fun combineResultsReturnsNOT_NEEDEDIfAllPassedAreNOT_NEEDED() {
         val results = arrayOf(
             Result.NOT_NEEDED,
             Result.NOT_NEEDED,
