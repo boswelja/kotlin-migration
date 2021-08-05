@@ -1,13 +1,7 @@
 [versions]
 benchmark = "0.3.1"
 coroutines = "1.5.0"
-junit = "4.13.2"
-mockk = "1.11.0"
-strikt = "0.31.0"
 
 [libraries]
 kotlinx-benchmark = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "benchmark" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
-mockk-core = { module = "io.mockk:mockk", version.ref = "mockk" }
-strikt-core = { module = "io.strikt:strikt-core", version.ref = "strikt" }
-strikt-mockk = { module = "io.strikt:strikt-mockk", version.ref = "strikt" }
