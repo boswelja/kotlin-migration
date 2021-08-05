@@ -1,11 +1,17 @@
+import Publishing.configureMavenPublication
+
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
+    id("maven-publish")
+    id("signing")
 }
 
 kotlin {
     jvm()
-    android()
+    android {
+        publishLibraryVariants("release")
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -39,5 +45,29 @@ android {
     defaultConfig {
         minSdk = 21
         targetSdk = 31
+    }
+}
+
+group = Publishing.groupId
+version = Publishing.version ?: "0.1.0"
+ext["signing.keyId"] = Publishing.signingKeyId
+ext["signing.password"] = Publishing.signingPassword
+ext["signing.secretKeyRingFile"] = Publishing.signingSecretKeyring
+signing {
+    sign(publishing.publications)
+}
+afterEvaluate {
+    publishing {
+        publications {
+            create(
+                "release",
+                configureMavenPublication(
+                    project.name,
+                    "A Kotlin library to enable easier program migrations, inspired by AndroidX Room",
+                    "https://github.com/boswelja/android-migration",
+                ) { }
+            )
+        }
+        repositories(Publishing.repositories)
     }
 }
