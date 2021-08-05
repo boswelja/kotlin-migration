@@ -4,6 +4,8 @@ plugins {
 
 kotlin {
     jvm()
+    js()
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -19,6 +21,3 @@ kotlin {
         }
     }
 }
-
-group = Publishing.groupId
-version = Publishing.version ?: "0.1.0"

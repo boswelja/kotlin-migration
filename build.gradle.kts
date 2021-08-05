@@ -1,13 +1,11 @@
 buildscript {
-    val kotlinVersion = "1.5.21"
-
     repositories {
         gradlePluginPortal()
         google()
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21")
     }
 }
 
@@ -18,21 +16,6 @@ allprojects {
     }
 }
 
-plugins {
-    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
-}
-
-group = Publishing.groupId
-version = Publishing.version ?: "0.1.0"
-
-nexusPublishing {
-    repositories {
-        sonatype {
-            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl
-                .set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-            username.set(Publishing.ossrhUsername)
-            password.set(Publishing.ossrhPassword)
-        }
-    }
+tasks.register("clean", Delete::class) {
+    delete(rootProject.buildDir)
 }
