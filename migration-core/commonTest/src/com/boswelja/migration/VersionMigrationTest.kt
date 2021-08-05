@@ -1,7 +1,7 @@
 package com.boswelja.migration
 
+import kotlin.test.Test
 import kotlinx.coroutines.runBlocking
-import org.junit.Test
 import strikt.api.expectThat
 import strikt.assertions.isFalse
 import strikt.assertions.isTrue

@@ -1,23 +1,26 @@
 import Publishing.configureMavenPublication
 
 plugins {
-    id("kotlin")
+    kotlin("multiplatform")
     id("maven-publish")
     id("signing")
 }
 
+kotlin {
+    sourceSets {
+        val commonMain by getting {
+            implementation(libs.kotlinx.coroutines.core)
+        }
+        val commonTest by getting {
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.strikt.core)
+            implementation(libs.mockk.core)
+        }
+    }
+}
+
 group = Publishing.groupId
 version = Publishing.version ?: "0.1.0"
-
-dependencies {
-    api(libs.kotlinx.coroutines.core)
-
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.junit)
-    testImplementation(libs.strikt.core)
-    testImplementation(libs.mockk.core)
-    testImplementation(libs.robolectric)
-}
 
 // Build sources too
 java {

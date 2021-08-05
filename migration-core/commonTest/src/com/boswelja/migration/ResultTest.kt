@@ -1,6 +1,6 @@
 package com.boswelja.migration
 
-import org.junit.Test
+import kotlin.test.Test
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
