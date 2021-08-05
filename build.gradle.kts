@@ -1,12 +1,12 @@
 buildscript {
-    val kotlinVersion = "1.5.21"
-
     repositories {
+        gradlePluginPortal()
         google()
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21")
+        classpath("com.android.tools.build:gradle:7.1.0-alpha06")
     }
 }
 
@@ -21,9 +21,6 @@ plugins {
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 }
 
-group = Publishing.groupId
-version = Publishing.version ?: "0.1.0"
-
 nexusPublishing {
     repositories {
         sonatype {
@@ -34,4 +31,8 @@ nexusPublishing {
             password.set(Publishing.ossrhPassword)
         }
     }
+}
+
+tasks.register("clean", Delete::class) {
+    delete(rootProject.buildDir)
 }

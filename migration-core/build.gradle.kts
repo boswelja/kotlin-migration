@@ -1,62 +1,73 @@
 import Publishing.configureMavenPublication
 
 plugins {
-    id("kotlin")
+    kotlin("multiplatform")
+    id("com.android.library")
     id("maven-publish")
     id("signing")
 }
 
+kotlin {
+    jvm()
+    android {
+        publishLibraryVariants("release")
+    }
+
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                api(libs.kotlinx.coroutines.core)
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test-common"))
+                implementation(kotlin("test-annotations-common"))
+            }
+        }
+        val jvmTest by getting {
+            dependencies {
+                implementation(kotlin("test-junit5"))
+            }
+        }
+        val androidMain by getting
+        val androidTest by getting {
+            dependencies {
+                implementation(kotlin("test-junit5"))
+            }
+        }
+    }
+}
+
+android {
+    compileSdk = 31
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+    defaultConfig {
+        minSdk = 21
+        targetSdk = 31
+    }
+}
+
 group = Publishing.groupId
 version = Publishing.version ?: "0.1.0"
-
-dependencies {
-    api(libs.kotlinx.coroutines.core)
-
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.junit)
-    testImplementation(libs.strikt.core)
-    testImplementation(libs.mockk.core)
-    testImplementation(libs.robolectric)
-}
-
-// Build sources too
-java {
-    withSourcesJar()
-    withJavadocJar()
-}
-
-// Add name and version to manifest
-tasks.jar {
-    manifest {
-        attributes(
-            mapOf(
-                "Implementation-Title" to project.name,
-                "Implementation-Version" to project.version
-            )
-        )
-    }
-}
-
-publishing {
-    publications {
-        create(
-            "release",
-            configureMavenPublication(
-                project.name,
-                "A Kotlin library to enable easier program migrations, inspired by AndroidX Room",
-                "https://github.com/boswelja/android-migration",
-            ) {
-                from(components["java"])
-            }
-        )
-    }
-    repositories(Publishing.repositories)
-}
-
-// Create signing config
 ext["signing.keyId"] = Publishing.signingKeyId
 ext["signing.password"] = Publishing.signingPassword
 ext["signing.secretKeyRingFile"] = Publishing.signingSecretKeyring
 signing {
     sign(publishing.publications)
+}
+afterEvaluate {
+    publishing {
+        publications {
+            create(
+                "release",
+                configureMavenPublication(
+                    project.name,
+                    "A Kotlin library to enable easier program migrations, inspired by AndroidX Room",
+                    "https://github.com/boswelja/android-migration",
+                ) { }
+            )
+        }
+        repositories(Publishing.repositories)
+    }
 }

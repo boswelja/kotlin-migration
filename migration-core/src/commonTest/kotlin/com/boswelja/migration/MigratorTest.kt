@@ -1,16 +1,13 @@
 package com.boswelja.migration
 
-import kotlinx.coroutines.runBlocking
-import org.junit.Test
-import strikt.api.expectThat
-import strikt.api.expectThrows
-import strikt.assertions.isEqualTo
-import strikt.assertions.isNull
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class MigratorTest {
 
     @Test
-    fun `runConstantMigrations does nothing with no migrations`(): Unit = runBlocking {
+    fun runConstantMigrationsDoesNothingWithNoMigrations(): Unit = runBlocking {
         val migrationCount = 10
         // Create a migrator for running tests
         val migrator = ConcreteMigrator(
@@ -21,9 +18,7 @@ class MigratorTest {
         )
 
         // Check with empty migration list
-        expectThat(
-            migrator.runConstantMigrations(1, emptyList())
-        ).isEqualTo(Result.NOT_NEEDED)
+        assertEquals(migrator.runConstantMigrations(1, emptyList()), Result.NOT_NEEDED)
 
         // Check with migrations whose shouldMigrate returns false
         val migrations = createConstantMigrations(
@@ -31,13 +26,11 @@ class MigratorTest {
             shouldMigrate = { false },
             migrateResult = { false }
         )
-        expectThat(
-            migrator.runConstantMigrations(1, migrations)
-        ).isEqualTo(Result.NOT_NEEDED)
+        assertEquals(migrator.runConstantMigrations(1, migrations), Result.NOT_NEEDED)
     }
 
     @Test
-    fun `runConstantMigrations aborts when abortOnError is true`(): Unit = runBlocking {
+    fun runConstantMigrationsAbortsWhenAbortOnErrorIsTrue(): Unit = runBlocking {
         val migrationCount = 10
 
         // Create a migrator for running tests
@@ -61,11 +54,11 @@ class MigratorTest {
         migrator.runConstantMigrations(1, migrations)
 
         // Verify only one migration was called
-        expectThat(migrationExecutionCount).isEqualTo(1)
+        assertEquals(migrationExecutionCount, 1)
     }
 
     @Test
-    fun `runConstantMigrations returns FAILED on error`(): Unit = runBlocking {
+    fun runConstantMigrationsReturnsFAILEDOnError(): Unit = runBlocking {
         val migrationCount = 10
 
         // Create migrations
@@ -83,7 +76,7 @@ class MigratorTest {
             emptyList()
         ).also { migrator ->
             // Check result
-            expectThat(migrator.runConstantMigrations(1, migrations)).isEqualTo(Result.FAILED)
+            assertEquals(migrator.runConstantMigrations(1, migrations), Result.FAILED)
         }
 
         // Check with abortOnError = false
@@ -94,12 +87,12 @@ class MigratorTest {
             emptyList()
         ).also { migrator ->
             // Check result
-            expectThat(migrator.runConstantMigrations(1, migrations)).isEqualTo(Result.FAILED)
+            assertEquals(migrator.runConstantMigrations(1, migrations), Result.FAILED)
         }
     }
 
     @Test
-    fun `runConstantMigrations throws exception if non-contant migrations are given`(): Unit = runBlocking {
+    fun runConstantMigrationsThrowsExceptionIfNonConstantMigrationsAreGiven(): Unit = runBlocking {
         // Create migrations
         val migrations = createVersionedMigrations(
             1,
@@ -115,14 +108,14 @@ class MigratorTest {
             emptyList()
         ).also { migrator ->
             // Check result
-            expectThrows<IllegalArgumentException> {
+            assertFailsWith<IllegalArgumentException> {
                 migrator.runConstantMigrations(1, migrations)
             }
         }
     }
 
     @Test
-    fun `runConstantMigrations returns SUCCESS on successful migrations`(): Unit = runBlocking {
+    fun runConstantMigrationsReturnsSUCCESSOnSuccessfulMigrations(): Unit = runBlocking {
         val migrationCount = 10
 
         // Create migrations
@@ -140,12 +133,12 @@ class MigratorTest {
             emptyList()
         ).also { migrator ->
             // Check result
-            expectThat(migrator.runConstantMigrations(1, migrations)).isEqualTo(Result.SUCCESS)
+            assertEquals(migrator.runConstantMigrations(1, migrations), Result.SUCCESS)
         }
     }
 
     @Test
-    fun `runVersionedMigrations does nothing with no migrations`(): Unit = runBlocking {
+    fun runVersionedMigrationsDoesNothingWithNoMigrations(): Unit = runBlocking {
         val fromVersion = 1
         val toVersion = 10
         // Create a migrator for running tests
@@ -157,9 +150,7 @@ class MigratorTest {
         )
 
         // Check with empty migration list
-        expectThat(
-            migrator.runVersionedMigrations(toVersion, emptyList())
-        ).isEqualTo(Result.NOT_NEEDED)
+        assertEquals(migrator.runVersionedMigrations(toVersion, emptyList()), Result.NOT_NEEDED)
 
         // Check with migrations that won't change the version
         val migrations = createVersionedMigrations(
@@ -167,13 +158,11 @@ class MigratorTest {
             toVersion,
             migrateResult = { true }
         )
-        expectThat(
-            migrator.runVersionedMigrations(toVersion, migrations)
-        ).isEqualTo(Result.NOT_NEEDED)
+        assertEquals(migrator.runVersionedMigrations(toVersion, migrations), Result.NOT_NEEDED)
     }
 
     @Test
-    fun `runVersionedMigrations aborts when abortOnError is true`(): Unit = runBlocking {
+    fun runVersionedMigrationsAbortsWhenAbortOnErrorIsTrue(): Unit = runBlocking {
         val fromVersion = 1
         val toVersion = 10
 
@@ -198,11 +187,11 @@ class MigratorTest {
         migrator.runVersionedMigrations(1, migrations)
 
         // Verify only one migration was called
-        expectThat(migrationExecutionCount).isEqualTo(1)
+        assertEquals(migrationExecutionCount, 1)
     }
 
     @Test
-    fun `runVersionedMigrations returns FAILED on error`(): Unit = runBlocking {
+    fun runVersionedMigrationsReturnsFAILEDOnError(): Unit = runBlocking {
         val fromVersion = 1
         val toVersion = 10
 
@@ -221,7 +210,7 @@ class MigratorTest {
             emptyList()
         ).also { migrator ->
             // Check result
-            expectThat(migrator.runVersionedMigrations(1, migrations)).isEqualTo(Result.FAILED)
+            assertEquals(migrator.runVersionedMigrations(1, migrations), Result.FAILED)
         }
 
         // Check with abortOnError = false
@@ -232,12 +221,12 @@ class MigratorTest {
             emptyList()
         ).also { migrator ->
             // Check result
-            expectThat(migrator.runVersionedMigrations(1, migrations)).isEqualTo(Result.FAILED)
+            assertEquals(migrator.runVersionedMigrations(1, migrations), Result.FAILED)
         }
     }
 
     @Test
-    fun `runVersionedMigrations throws exception if contant migrations are given`(): Unit = runBlocking {
+    fun runVersionedMigrationsThrowsExceptionIfConstantMigrationsAreGiven(): Unit = runBlocking {
         val migrationCount = 10
         // Create migrations
         val migrations = createConstantMigrations(
@@ -254,14 +243,14 @@ class MigratorTest {
             emptyList()
         ).also { migrator ->
             // Check result
-            expectThrows<IllegalArgumentException> {
+            assertFailsWith<IllegalArgumentException> {
                 migrator.runVersionedMigrations(1, migrations)
             }
         }
     }
 
     @Test
-    fun `runVersionedMigrations returns SUCCESS on successful migrations`(): Unit = runBlocking {
+    fun runVersionedMigrationsReturnsSUCCESSOnSuccessfulMigrations(): Unit = runBlocking {
         val fromVersion = 1
         val toVersion = 10
 
@@ -280,14 +269,14 @@ class MigratorTest {
             emptyList()
         ).also { migrator ->
             // Check result
-            expectThat(
-                migrator.runVersionedMigrations(fromVersion, migrations)
-            ).isEqualTo(Result.SUCCESS)
+            assertEquals(
+                migrator.runVersionedMigrations(fromVersion, migrations), Result.SUCCESS
+            )
         }
     }
 
     @Test
-    fun `onMigratedTo is called after successful migration`() {
+    fun onMigratedToIsCalledAfterSuccessfulMigration() {
         val fromVersion = 1
         val toVersion = 3
 
@@ -304,11 +293,11 @@ class MigratorTest {
 
         runBlocking { migrator.migrate() }
 
-        expectThat(migrator.migratedTo).isEqualTo(3)
+        assertEquals(migrator.migratedTo, 3)
     }
 
     @Test
-    fun `onMigratedTo is called after failed migration`() {
+    fun onMigratedToIsCalledAfterFailedMigration() {
         val fromVersion = 1
         val toVersion = 3
 
@@ -325,11 +314,11 @@ class MigratorTest {
 
         runBlocking { migrator.migrate() }
 
-        expectThat(migrator.migratedTo).isEqualTo(fromVersion)
+        assertEquals(migrator.migratedTo, fromVersion)
     }
 
     @Test
-    fun `onMigratedTo is not called if no migrations were run`() {
+    fun onMigratedToIsNotCalledIfNoMigrationsWereRun() {
         val fromVersion = 1
         val toVersion = 3
 
@@ -346,18 +335,19 @@ class MigratorTest {
 
         runBlocking { migrator.migrate() }
 
-        expectThat(migrator.migratedTo).isNull()
+        assertEquals(migrator.migratedTo, null)
     }
 
     @Test
-    fun `migrate throws IllegalStateException if getOldVersion returns higher than currentVersion`() {
-        val migrator = ConcreteMigrator(
-            oldVersion = 2,
-            currentVersion = 1,
-            migrations = emptyList()
-        )
-        expectThrows<IllegalStateException> {
-            migrator.migrate()
+    fun migrateThrowsIllegalStateExceptionIfGetOldVersionIsHigherThanCurrentVersion(): Unit =
+        runBlocking {
+            val migrator = ConcreteMigrator(
+                oldVersion = 2,
+                currentVersion = 1,
+                migrations = emptyList()
+            )
+            assertFailsWith<IllegalStateException> {
+                migrator.migrate()
+            }
         }
-    }
 }

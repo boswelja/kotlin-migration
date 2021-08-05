@@ -43,13 +43,7 @@ jobs:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-cache-${{ hashFiles('**/*.gradle.kts') }}
       - name: Unit tests
-        run: bash ./gradlew :migration:test --stacktrace
-      - uses: actions/upload-artifact@v2.2.4
-        if: failure()
-        with:
-          name: Unit test results
-          path: ./**/build/reports/tests/
-          if-no-files-found: ignore
+        run: bash ./gradlew :migration-core:check --stacktrace
 
   code-quality:
     name: Code Quality

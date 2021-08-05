@@ -1,30 +1,27 @@
 package com.boswelja.migration
 
-import kotlinx.coroutines.runBlocking
-import org.junit.Test
-import strikt.api.expectThat
-import strikt.assertions.isFalse
-import strikt.assertions.isTrue
+import kotlin.test.Test
+import kotlin.test.assertTrue
 
 class VersionMigrationTest {
 
     @Test
-    fun `shouldMigrate returns true if the migration can be applied`() {
+    fun shouldMigrateReturnsTrueIfTheMigrationCanBeApplied() {
         val fromVersion = 1
         val toVersion = 2
         val migration = versionMigration(fromVersion, toVersion) { true }
 
         val shouldMigrate = runBlocking { migration.shouldMigrate(fromVersion) }
-        expectThat(shouldMigrate).isTrue()
+        assertTrue(shouldMigrate)
     }
 
     @Test
-    fun `shouldMigrate returns false if the migration cannot be applied`() {
+    fun shouldMigrateReturnsFalseIfTheMigrationCannotBeApplied() {
         val fromVersion = 1
         val toVersion = 2
         val migration = versionMigration(fromVersion, toVersion) { true }
 
         val shouldMigrate = runBlocking { migration.shouldMigrate(toVersion) }
-        expectThat(shouldMigrate).isFalse()
+        assertTrue(shouldMigrate)
     }
 }
