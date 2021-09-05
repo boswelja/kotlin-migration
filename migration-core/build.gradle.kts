@@ -1,8 +1,8 @@
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
-    id("maven-publish")
-    id("signing")
+    `maven-publish`
+    signing
 }
 
 kotlin {
@@ -28,7 +28,9 @@ kotlin {
                 implementation(kotlin("test-junit5"))
             }
         }
-        val androidMain by getting
+        val androidMain by getting {
+            dependencies { }
+        }
         val androidTest by getting {
             dependencies {
                 implementation(kotlin("test-junit5"))
@@ -48,29 +50,25 @@ android {
 
 group = Publishing.groupId
 version = Publishing.version ?: "0.1.0"
+description = "A Kotlin library to enable easier code migrations, inspired by AndroidX Room"
 
 ext["signing.keyId"] = Publishing.signingKeyId
 ext["signing.password"] = Publishing.signingPassword
 ext["signing.secretKeyRingFile"] = Publishing.signingSecretKeyring
+
 signing {
     sign(publishing.publications)
 }
+
 afterEvaluate {
     publishing {
         publications.withType<MavenPublication> {
-            groupId = Publishing.groupId
-            artifactId = project.name
-            version = Publishing.version
-
             pom {
-                name.set(artifactId)
-                this.description.set(description)
-                this.url.set(url)
-
+                url.set("https://github.com/boswelja/kotlin-migration")
                 licenses {
                     license {
                         name.set("Apache 2.0")
-                        url.set("https://github.com/boswelja/android-migration/blob/main/LICENSE")
+                        url.set("https://github.com/boswelja/kotlin-migration/blob/main/LICENSE")
                     }
                 }
                 developers {
