@@ -1,6 +1,7 @@
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
+    id("org.jetbrains.dokka") version "1.5.0"
     `maven-publish`
     signing
 }
@@ -56,6 +57,14 @@ ext["signing.keyId"] = Publishing.signingKeyId
 ext["signing.password"] = Publishing.signingPassword
 ext["signing.secretKeyRingFile"] = Publishing.signingSecretKeyring
 
+tasks {
+    create<Jar>("javadocJar") {
+        dependsOn(dokkaJavadoc)
+        archiveClassifier.set("javadoc")
+        from(dokkaJavadoc.get().outputDirectory)
+    }
+}
+
 signing {
     sign(publishing.publications)
 }
@@ -63,7 +72,11 @@ signing {
 afterEvaluate {
     publishing {
         publications.withType<MavenPublication> {
+            artifact(tasks["javadocJar"])
+
             pom {
+                name.set(this@afterEvaluate.name)
+                description.set(this@afterEvaluate.description)
                 url.set("https://github.com/boswelja/kotlin-migration")
                 licenses {
                     license {
