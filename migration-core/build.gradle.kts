@@ -1,5 +1,3 @@
-import Publishing.configureMavenPublication
-
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
@@ -50,22 +48,46 @@ android {
 
 group = Publishing.groupId
 version = Publishing.version ?: "0.1.0"
+
 ext["signing.keyId"] = Publishing.signingKeyId
 ext["signing.password"] = Publishing.signingPassword
 ext["signing.secretKeyRingFile"] = Publishing.signingSecretKeyring
 signing {
     sign(publishing.publications)
 }
-publishing {
-    publications {
-        create(
-            "release",
-            configureMavenPublication(
-                project.name,
-                "A Kotlin library to enable easier program migrations, inspired by AndroidX Room",
-                "https://github.com/boswelja/android-migration",
-            ) { }
-        )
+afterEvaluate {
+    publishing {
+        publications.withType<MavenPublication> {
+            groupId = Publishing.groupId
+            artifactId = project.name
+            version = Publishing.version
+
+            pom {
+                name.set(artifactId)
+                this.description.set(description)
+                this.url.set(url)
+
+                licenses {
+                    license {
+                        name.set("Apache 2.0")
+                        url.set("https://github.com/boswelja/android-migration/blob/main/LICENSE")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("boswelja")
+                        name.set("Jack Boswell")
+                        email.set("boswelja@outlook.com")
+                        url.set("https://github.com/boswelja")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:github.com/boswelja/kotlin-migration.git")
+                    developerConnection.set("scm:git:ssh://github.com/boswelja/kotlin-migration.git")
+                    url.set("https://github.com/boswelja/kotlin-migration")
+                }
+            }
+            repositories(Publishing.repositories)
+        }
     }
-    repositories(Publishing.repositories)
 }
