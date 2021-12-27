@@ -24,6 +24,10 @@ abstract class Migrator(
      */
     abstract suspend fun onMigratedTo(version: Int)
 
+    /**
+     * Execute pending migrations, if any.
+     * @return The [Result] for the migration run.
+     */
     suspend fun migrate(): Result {
         // Get versions
         val oldVersion = getOldVersion()
@@ -78,6 +82,12 @@ abstract class Migrator(
         return result
     }
 
+    /**
+     * Run migrations from a specified version to a specified version. Consider using [migrate] in
+     * your app or library instead.
+     * @param fromVersion The initial version to migrate from.
+     * @param migrations The list of migrations to execute.
+     */
     suspend fun runVersionedMigrations(
         fromVersion: Int,
         migrations: List<Migration>

@@ -2,6 +2,7 @@ plugins {
     kotlin("multiplatform")
     id("com.android.library")
     id("org.jetbrains.dokka") version "1.6.0"
+    id("io.gitlab.arturbosch.detekt") version "1.19.0"
     `maven-publish`
     signing
 }
@@ -101,4 +102,11 @@ afterEvaluate {
             repositories(Publishing.repositories)
         }
     }
+}
+
+detekt {
+    config = files("$rootDir/config/detekt/detekt.yml")
+    source = files("src")
+    buildUponDefaultConfig = true
+    parallel = true
 }

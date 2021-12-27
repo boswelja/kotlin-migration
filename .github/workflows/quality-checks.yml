@@ -21,7 +21,7 @@ jobs:
           java-version: 11
           cache: 'gradle'
       - name: Build
-        run: bash ./gradlew build --stacktrace
+        run: bash ./gradlew build
 
   test:
     name: Unit Tests
@@ -34,11 +34,6 @@ jobs:
           distribution: 'adopt'
           java-version: 11
           cache: 'gradle'
-      - name: Cache Gradle packages
-        uses: actions/cache@v2.1.7
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-cache-${{ hashFiles('**/*.gradle.kts') }}
       - name: Unit tests
         run: bash ./gradlew :migration-core:check --stacktrace
 
@@ -54,11 +49,4 @@ jobs:
           java-version: 11
           cache: 'gradle'
       - name: Run ktlint
-        uses: le0nidas/ktlint-pr-comments@v1.2
-        with:
-          repotoken: ${{ secrets.GITHUB_TOKEN }}
-      - name: Cache Gradle packages
-        uses: actions/cache@v2.1.7
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-cache-${{ hashFiles('**/*.gradle.kts') }}
+        run: bash ./gradlew detekt
