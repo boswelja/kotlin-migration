@@ -1,5 +1,8 @@
 package com.boswelja.migration
 
+/**
+ * Contains possible results for migrations.
+ */
 enum class Result {
     /**
      * Indicates the operation succeeded.
