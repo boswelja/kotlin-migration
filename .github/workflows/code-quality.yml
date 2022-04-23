@@ -1,0 +1,27 @@
+name: "Code scanning"
+
+# Run workflow each time code is pushed to your repository and on a schedule.
+# The scheduled workflow runs every Thursday at 15:45 UTC.
+on:
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  static-code:
+    name: Static Code Analysis
+    runs-on: ubuntu-latest
+    steps:
+      # This step checks out a copy of your repository.
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: 11
+          cache: 'gradle'
+
+      - name: Detekt Report
+        run: ./gradlew detekt
