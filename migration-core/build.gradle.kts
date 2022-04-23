@@ -56,6 +56,9 @@ tasks.koverVerify {
     }
 }
 
+group = "io.github.boswelja.migration"
+version = findProperty("version") ?: "0.1.0"
+
 signing {
     val signingKey: String? by project
     val signingPassword: String? by project
