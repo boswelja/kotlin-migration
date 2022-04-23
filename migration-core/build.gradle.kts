@@ -14,6 +14,9 @@ kotlin {
     }
 
     sourceSets {
+        all {
+            languageSettings.optIn("kotlin.RequiresOptIn")
+        }
         commonMain {
             dependencies {
                 api(libs.kotlinx.coroutines.core)
@@ -25,7 +28,6 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
-        val androidMain by getting {}
     }
 }
 
