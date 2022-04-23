@@ -21,17 +21,19 @@ plugins {
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 }
 
-group = Publishing.groupId
-version = Publishing.version ?: "0.1.0"
+group = "io.github.boswelja.migration"
+version = findProperty("version") ?: "0.1.0"
 
 nexusPublishing {
     repositories {
         sonatype {
+            val ossrhUsername: String? by project
+            val ossrhPassword: String? by project
             nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
             snapshotRepositoryUrl
                 .set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-            username.set(Publishing.ossrhUsername)
-            password.set(Publishing.ossrhPassword)
+            username.set(ossrhUsername)
+            password.set(ossrhPassword)
         }
     }
 }
