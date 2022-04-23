@@ -1,8 +1,8 @@
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
-    id("org.jetbrains.dokka") version "1.6.20"
-    id("io.gitlab.arturbosch.detekt") version "1.20.0"
+    id("io.gitlab.arturbosch.detekt")
+    id("org.jetbrains.kotlinx.kover")
     `maven-publish`
     signing
 }
@@ -14,47 +14,45 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        all {
+            languageSettings.optIn("kotlin.RequiresOptIn")
+        }
+        commonMain {
             dependencies {
                 api(libs.kotlinx.coroutines.core)
             }
         }
-        val commonTest by getting {
+        commonTest {
             dependencies {
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test-annotations-common"))
-            }
-        }
-        val jvmTest by getting {
-            dependencies {
-                implementation(kotlin("test-junit5"))
-            }
-        }
-        val androidMain by getting {
-            dependencies { }
-        }
-        val androidTest by getting {
-            dependencies {
-                implementation(kotlin("test-junit5"))
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(kotlin("test"))
             }
         }
     }
 }
 
 android {
-    compileSdk = 31
+    namespace = "com.boswelja.migration"
+    compileSdk = 32
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
-        targetSdk = 31
+        targetSdk = 32
+    }
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
     }
 }
 
-tasks {
-    create<Jar>("javadocJar") {
-        dependsOn(dokkaJavadoc)
-        archiveClassifier.set("javadoc")
-        from(dokkaJavadoc.get().outputDirectory)
+tasks.koverVerify {
+    rule {
+        name = "Code line coverage"
+        bound {
+            minValue = 90
+        }
     }
 }
 
@@ -63,6 +61,10 @@ signing {
     val signingPassword: String? by project
     useInMemoryPgpKeys(signingKey, signingPassword)
     sign(publishing.publications)
+}
+
+tasks.register<Jar>("javadocJar") {
+    archiveClassifier.set("javadoc")
 }
 
 publishing {
@@ -110,6 +112,4 @@ publishing {
 detekt {
     config = files("$rootDir/config/detekt/detekt.yml")
     source = files("src")
-    buildUponDefaultConfig = true
-    parallel = true
 }
