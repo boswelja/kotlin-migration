@@ -1,27 +1,33 @@
 package com.boswelja.migration
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class VersionMigrationTest {
 
     @Test
-    fun shouldMigrateReturnsTrueIfTheMigrationCanBeApplied() {
+    fun shouldMigrateReturnsTrueIfTheMigrationCanBeApplied() = runTest {
         val fromVersion = 1
         val toVersion = 2
         val migration = versionMigration(fromVersion, toVersion) { true }
 
-        val shouldMigrate = runBlocking { migration.shouldMigrate(fromVersion) }
-        assertTrue(shouldMigrate)
+        assertTrue {
+            migration.shouldMigrate(fromVersion)
+        }
     }
 
     @Test
-    fun shouldMigrateReturnsFalseIfTheMigrationCannotBeApplied() {
+    fun shouldMigrateReturnsFalseIfTheMigrationCannotBeApplied() = runTest {
         val fromVersion = 1
         val toVersion = 2
         val migration = versionMigration(fromVersion, toVersion) { true }
 
-        val shouldMigrate = runBlocking { migration.shouldMigrate(toVersion) }
-        assertTrue(shouldMigrate)
+        assertFalse {
+            migration.shouldMigrate(toVersion)
+        }
     }
 }

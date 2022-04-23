@@ -21,23 +21,11 @@ kotlin {
         }
         commonTest {
             dependencies {
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test-annotations-common"))
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(kotlin("test"))
             }
         }
-        val jvmTest by getting {
-            dependencies {
-                implementation(kotlin("test-junit5"))
-            }
-        }
-        val androidMain by getting {
-            dependencies { }
-        }
-        val androidTest by getting {
-            dependencies {
-                implementation(kotlin("test-junit5"))
-            }
-        }
+        val androidMain by getting {}
     }
 }
 
