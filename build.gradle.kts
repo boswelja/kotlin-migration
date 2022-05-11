@@ -1,7 +1,7 @@
 plugins {
     id("com.android.library") version "7.3.0-alpha09" apply false
     id("org.jetbrains.kotlin.multiplatform") version "1.6.21" apply false
-    id("org.jetbrains.kotlinx.kover") version "0.5.0" apply false
+    id("org.jetbrains.kotlinx.kover") version "0.5.1" apply false
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
     id("io.gitlab.arturbosch.detekt") version "1.20.0"
 }
