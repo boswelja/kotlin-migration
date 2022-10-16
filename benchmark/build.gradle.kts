@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.allopen.gradle.AllOpenExtension
 
 plugins {
     id("kotlin")
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.7.10"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.7.20"
     id("org.jetbrains.kotlinx.benchmark") version "0.4.5"
 }
 

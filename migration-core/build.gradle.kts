@@ -47,11 +47,13 @@ android {
     }
 }
 
-tasks.koverVerify {
-    rule {
-        name = "Code line coverage"
-        bound {
-            minValue = 90
+kover {
+    verify {
+        rule {
+            name = "Code line coverage"
+            bound {
+                minValue = 90
+            }
         }
     }
 }

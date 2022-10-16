@@ -1,6 +1,6 @@
 [versions]
-benchmark = "0.4.2"
-coroutines = "1.6.1"
+benchmark = "0.4.5"
+coroutines = "1.6.4"
 
 [libraries]
 kotlinx-benchmark = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "benchmark" }
