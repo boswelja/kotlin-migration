@@ -3,7 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.multiplatform") version "1.8.22" apply false
     id("org.jetbrains.kotlinx.kover") version "0.6.1" apply false
     id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
-    id("io.gitlab.arturbosch.detekt") version "1.22.0"
+    id("io.gitlab.arturbosch.detekt") version "1.23.0"
 }
 
 group = "io.github.boswelja.migration"
