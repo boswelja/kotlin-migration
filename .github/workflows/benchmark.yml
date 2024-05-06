@@ -28,7 +28,7 @@ jobs:
       - name: Benchmark PR
         run: bash ./gradlew mainBenchmark
       - name: Generate benchmark table
-        uses: boswelja/kotlinx-benchmark-table-action@0.0.3
+        uses: boswelja/kotlinx-benchmark-table-action@0.0.4
         id: pr-table
         with:
           benchmark-results: "benchmark/build/reports/benchmarks/main/*/main.json"
@@ -40,7 +40,7 @@ jobs:
       - name: Benchmark main
         run: bash ./gradlew mainBenchmark
       - name: Generate benchmark table
-        uses: boswelja/kotlinx-benchmark-table-action@0.0.3
+        uses: boswelja/kotlinx-benchmark-table-action@0.0.4
         id: main-table
         with:
           benchmark-results: "benchmark/build/reports/benchmarks/main/*/main.json"
