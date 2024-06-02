@@ -8,8 +8,9 @@ plugins {
 }
 
 kotlin {
+    jvmToolchain(17)
     jvm()
-    android {
+    androidTarget {
         publishLibraryVariants("release")
     }
 
@@ -33,11 +34,10 @@ kotlin {
 
 android {
     namespace = "com.boswelja.migration"
-    compileSdk = 32
+    compileSdk = 34
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 21
-        targetSdk = 32
     }
     publishing {
         singleVariant("release") {
@@ -48,11 +48,10 @@ android {
 }
 
 kover {
-    verify {
-        rule {
-            name = "Code line coverage"
-            bound {
-                minValue = 90
+    reports {
+        verify {
+            rule("Code line coverage") {
+                minBound(90)
             }
         }
     }
@@ -115,6 +114,5 @@ publishing {
 }
 
 detekt {
-    config = files("$rootDir/config/detekt/detekt.yml")
-    source = files("src")
+    config.from("$rootDir/config/detekt/detekt.yml")
 }
