@@ -8,6 +8,7 @@ plugins {
 }
 
 kotlin {
+    jvmToolchain(17)
     jvm()
     androidTarget {
         publishLibraryVariants("release")
