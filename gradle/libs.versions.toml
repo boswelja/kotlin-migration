@@ -1,5 +1,5 @@
 [versions]
-benchmark = "0.4.14"
+benchmark = "0.4.15"
 coroutines = "1.10.2"
 
 [libraries]
