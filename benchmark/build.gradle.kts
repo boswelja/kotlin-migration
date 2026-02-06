@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.allopen.gradle.AllOpenExtension
 plugins {
     id("kotlin")
     id("org.jetbrains.kotlin.plugin.allopen") version "2.3.0"
-    id("org.jetbrains.kotlinx.benchmark") version "0.4.15"
+    id("org.jetbrains.kotlinx.benchmark") version "0.4.16"
 }
 
 configure<AllOpenExtension> {
